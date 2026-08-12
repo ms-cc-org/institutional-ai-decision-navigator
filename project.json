@@ -1,0 +1,6 @@
+{
+  "project": "Institutional AI Decision Navigator",
+  "ontology_file": "data/ontology.json",
+  "ontology_version": "0.2",
+  "status": "repo shell"
+}
