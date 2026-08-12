@@ -5,8 +5,10 @@ import { useMemo, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { evaluateIntent } from "@/lib/intent-engine";
 import { intentsById } from "@/lib/intents";
-import { decisionsById } from "@/lib/ontology";
+import { decisionsById, ontology } from "@/lib/ontology";
 import type { InstitutionProfile, IntentAnswers, IntentId, IntentRecommendation } from "@/lib/types";
+import { EvidenceSummary } from "./EvidenceDisclosure";
+import { RelationshipProvenanceNote } from "./RelationshipProvenanceNote";
 
 const subscribeToStorage = (onChange: () => void) => {
   window.addEventListener("storage", onChange);
@@ -17,6 +19,7 @@ const getProfile = () => localStorage.getItem("institution-profile") ?? "";
 const getServerValue = () => undefined;
 
 function RecommendationBlock({ item, number }: { item: IntentRecommendation; number: number }) {
+  const decision = decisionsById.get(item.decisionId)!;
   return (
     <article className="priority-item">
       <div className="priority-number">{String(number).padStart(2, "0")}</div>
@@ -27,13 +30,23 @@ function RecommendationBlock({ item, number }: { item: IntentRecommendation; num
         <div className="disclosures">
           <details>
             <summary>Evidence behind this recommendation</summary>
-            <p>The ontology cites {item.evidenceSourceIds.length} supporting source{item.evidenceSourceIds.length === 1 ? "" : "s"}.</p>
-            <p className="technical-line">Source references: {item.evidenceSourceIds.join(" · ")}</p>
+            <EvidenceSummary decision={decision} />
           </details>
           <details>
             <summary>How this connects</summary>
             {item.prerequisites.length ? (
-              <ul>{item.prerequisites.map((id) => <li key={id}><Link href={`/decisions/${id}`}>{decisionsById.get(id)?.question}</Link></li>)}</ul>
+              <ul>{item.prerequisites.map((id) => {
+                const relationship = ontology.relationships.find((candidate) =>
+                  candidate.relationship === "prerequisite_for"
+                  && candidate.from === id
+                  && candidate.to === item.decisionId);
+                return (
+                  <li key={id}>
+                    <Link href={`/decisions/${id}`}>{decisionsById.get(id)?.question}</Link>
+                    {relationship && <RelationshipProvenanceNote relationship={relationship} />}
+                  </li>
+                );
+              })}</ul>
             ) : <p>No prerequisite decision is defined for this item.</p>}
           </details>
         </div>

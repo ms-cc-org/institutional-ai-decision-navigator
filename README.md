@@ -1,10 +1,10 @@
 # Institutional AI Decision Navigator
 
-An evidence-based planning tool that helps higher-education leaders resolve the few AI decisions that matter for the goal in front of them. A user chooses an intent, answers three to five targeted questions, and receives no more than five primary decisions with actions, evidence, and dependencies. A short general assessment remains available for users who do not know where to start.
+An evidence-traceable planning tool that helps higher-education leaders resolve the few AI decisions that matter for the goal in front of them. A user chooses an intent, answers three to five targeted questions, and receives no more than five primary decisions with actions, evidence provenance, and dependencies. A short general assessment remains available for users who do not know where to start.
 
 ## Ontology
 
-`data/ontology.json` is the unchanged source of truth. Version 0.2 contains 99 decisions across 13 domains and 202 prerequisite or related-to relationships. Decisions provide their question, trigger, context, options, recommendation logic, risks, stakeholders, source IDs, maturity stage, and expected output.
+`data/ontology.json` is the source of truth. Version 0.3.2 contains 99 decisions, 202 prerequisite or related-to relationships, and 27 registered sources. It keeps source support separate from independent corroboration and includes assertion-level evidence links, controlled decision categories, and relationship provenance.
 
 `lib/ontology.ts` validates every required decision and relationship field at load time, rejects duplicate IDs, and ensures relationships refer to existing decisions. Application-specific profile and result types live separately in `lib/types.ts`.
 
@@ -16,7 +16,7 @@ An evidence-based planning tool that helps higher-education leaders resolve the 
 
 The original deterministic profile engine in `lib/engine.ts` is preserved as the general pathway's ranking fallback and remains fully tested. No LLM or external service is involved.
 
-See [docs/architecture.md](docs/architecture.md) for the complete data flow and thresholds.
+See [docs/architecture.md](docs/architecture.md) for the complete data flow and thresholds, and [docs/EVIDENCE_AUDIT_v0.3.2.md](docs/EVIDENCE_AUDIT_v0.3.2.md) for the authoritative evidence and provenance audit.
 
 ## Run locally
 
@@ -52,4 +52,5 @@ If the first deployment reports that Pages is not enabled, open the repository's
 - Targeted pathways use three to five context questions; the general assessment uses eight inputs and typed defaults for non-visible profile fields.
 - Prerequisite completion is estimated from profile maturity rather than collected decision-by-decision.
 - Scores and thresholds are transparent heuristics, not validated institutional benchmarks.
-- Evidence source IDs are displayed exactly as supplied; the ontology does not include full source records or links.
+- Some source records lack a year or URL, and all evidence links still lack passage-level source locations. The interface leaves those gaps visible rather than filling them by inference.
+- The ontology is not yet practitioner validated. Relationship provenance distinguishes structural confidence from source or practitioner validation.
