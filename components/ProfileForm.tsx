@@ -1,22 +1,82 @@
 "use client";
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
-import type { InstitutionProfile } from "@/lib/types";
 
-const initial: InstitutionProfile = { institutionType:"masters", institutionScale:"medium", researchIntensity:"moderate", itCapacity:"moderate", researchComputingCapacity:"moderate", aiGovernanceMaturity:"informal", dataGovernanceMaturity:"developing", securityMaturity:"developing", aiAdoptionLevel:"emerging", primaryObjectives:["teaching_learning"], regulatedDataUsage:true, budgetFlexibility:"moderate", aiExpertise:"moderate", accessibilityMaturity:"developing" };
-const fields = [
-  ["institutionType","Institution type",[["community_college","Community college"],["liberal_arts","Liberal arts college"],["masters","Master’s institution"],["research_university","Research university"],["system","University system"]]],
-  ["researchIntensity","Research intensity",[["low","Low / teaching focused"],["moderate","Moderate"],["high","High"]]],
-  ["aiAdoptionLevel","Current AI adoption",[["exploring","Exploring"],["emerging","Emerging across some units"],["widespread","Widespread"]]],
-  ["aiGovernanceMaturity","AI governance",[["none","No formal governance"],["informal","Informal / forming"],["formal","Formal and operating"]]],
-  ["dataGovernanceMaturity","Data governance",[["weak","Weak / inconsistent"],["developing","Developing"],["strong","Strong"]]],
-  ["researchComputingCapacity","Research computing / AI capacity",[["limited","Limited"],["moderate","Moderate"],["strong","Strong"]]],
-] as const;
-const objectives = [["teaching_learning","Teaching & learning"],["research","Research"],["student_services","Student services"],["administration","Administration"],["workforce","Workforce productivity"]] as const;
+import { FormEvent, useMemo, useState, useSyncExternalStore } from "react";
+import { useRouter } from "next/navigation";
+import { createDiagnosticState, diagnosticIndicators, parseDiagnosticState } from "@/lib/diagnostics";
+import type { DiagnosticAnswers } from "@/lib/types";
+
+const subscribeToStorage = (onChange: () => void) => {
+  window.addEventListener("storage", onChange);
+  return () => window.removeEventListener("storage", onChange);
+};
+const getStoredDiagnostics = () => localStorage.getItem("diagnostic-state") ?? "";
+const getServerDiagnostics = () => "";
+
 export function ProfileForm() {
-  const [profile,setProfile] = useState(initial); const router=useRouter();
-  const submit=(e:FormEvent)=>{e.preventDefault(); if(profile.primaryObjectives.length===0)return; localStorage.setItem("institution-profile",JSON.stringify(profile)); localStorage.setItem("navigator-session",JSON.stringify({intentId:"getting-started",answers:{}})); router.push("/roadmap");};
-  return <form onSubmit={submit}><div className="question-grid">{fields.map(([key,label,options],index)=><label className="field" key={key}><span><b>{String(index+1).padStart(2,"0")}</b>{label}</span><select value={String(profile[key])} onChange={(e)=>setProfile({...profile,[key]:e.target.value})}>{options.map(([value,text])=><option key={value} value={value}>{text}</option>)}</select></label>)}
-  <fieldset className="field"><legend><b>07</b>Sensitive or regulated data</legend><div className="segmented"><label><input type="radio" checked={profile.regulatedDataUsage} onChange={()=>setProfile({...profile,regulatedDataUsage:true})}/> Yes</label><label><input type="radio" checked={!profile.regulatedDataUsage} onChange={()=>setProfile({...profile,regulatedDataUsage:false})}/> No</label></div></fieldset>
-  <fieldset className="field wide"><legend><b>08</b>Primary AI objectives <small>Select one or more</small></legend><div className="checks">{objectives.map(([value,label])=><label key={value}><input type="checkbox" checked={profile.primaryObjectives.includes(value)} onChange={(e)=>setProfile({...profile,primaryObjectives:e.target.checked?[...profile.primaryObjectives,value]:profile.primaryObjectives.filter((x)=>x!==value)})}/><span>{label}</span></label>)}</div>{profile.primaryObjectives.length===0&&<p className="field-error" role="alert">Select at least one objective.</p>}</fieldset></div><div className="submit-row"><p>Results are deterministic and show the evidence and synthesis behind each decision.</p><button type="submit">Build my roadmap <span>→</span></button></div></form>;
+  const storedDiagnostics = useSyncExternalStore(subscribeToStorage, getStoredDiagnostics, getServerDiagnostics);
+  const savedAnswers = useMemo(
+    () => parseDiagnosticState(storedDiagnostics)?.answers ?? {},
+    [storedDiagnostics],
+  );
+  const [draftAnswers, setDraftAnswers] = useState<DiagnosticAnswers>({});
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const router = useRouter();
+  const answers = { ...savedAnswers, ...draftAnswers };
+  const indicator = diagnosticIndicators[questionIndex];
+  const selectedValue = answers[indicator.id];
+  const atLastQuestion = questionIndex === diagnosticIndicators.length - 1;
+  const helpId = `${indicator.id}-help`;
+
+  const continueAssessment = (event: FormEvent) => {
+    event.preventDefault();
+    if (!selectedValue) return;
+    if (!atLastQuestion) {
+      setQuestionIndex((current) => current + 1);
+      return;
+    }
+    const diagnosticState = createDiagnosticState(answers);
+    localStorage.setItem("diagnostic-state", JSON.stringify(diagnosticState));
+    localStorage.setItem("institution-profile", JSON.stringify(diagnosticState.profile));
+    localStorage.setItem("navigator-session", JSON.stringify({ intentId: "getting-started", answers: {} }));
+    router.push("/roadmap");
+  };
+
+  return (
+    <form onSubmit={continueAssessment} className="diagnostic-form">
+      <div
+        className="progress"
+        role="progressbar"
+        aria-label="General assessment progress"
+        aria-valuemin={1}
+        aria-valuemax={diagnosticIndicators.length}
+        aria-valuenow={questionIndex + 1}
+        aria-valuetext={`Question ${questionIndex + 1} of ${diagnosticIndicators.length}`}
+      >
+        <span>Question {questionIndex + 1} of {diagnosticIndicators.length}</span>
+        <div aria-hidden="true"><i style={{ width: `${((questionIndex + 1) / diagnosticIndicators.length) * 100}%` }} /></div>
+      </div>
+      <fieldset aria-describedby={helpId}>
+        <legend>{indicator.question}</legend>
+        <p id={helpId}>{indicator.helpText}</p>
+        <div className="answer-list">
+          {indicator.responseOptions.map((option) => (
+            <label key={option.value}>
+              <input
+                type="radio"
+                name={indicator.id}
+                value={option.value}
+                checked={selectedValue === option.value}
+                onChange={() => setDraftAnswers((current) => ({ ...current, [indicator.id]: option.value }))}
+              />
+              <span>{option.label}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <div className="question-actions">
+        <button type="button" className="secondary-button" disabled={questionIndex === 0} onClick={() => setQuestionIndex((current) => current - 1)}>Back</button>
+        <button type="submit" className="primary-button" disabled={!selectedValue}>{atLastQuestion ? "Show my priorities" : "Continue"} →</button>
+      </div>
+    </form>
+  );
 }

@@ -108,6 +108,39 @@ export interface InstitutionProfile {
   aiExpertise: "limited" | "moderate" | "strong";
   accessibilityMaturity: "weak" | "developing" | "strong";
 }
+
+export type DiagnosticDimension =
+  | "institution"
+  | "objectives"
+  | "data_scope"
+  | "governance"
+  | "data_governance"
+  | "research_capacity"
+  | "adoption";
+
+export interface DiagnosticResponseOption {
+  value: string;
+  label: string;
+}
+
+export interface DiagnosticIndicator {
+  id: string;
+  dimension: DiagnosticDimension;
+  question: string;
+  helpText: string;
+  responseOptions: DiagnosticResponseOption[];
+  relatedDecisionIds: string[];
+  stateMapping: Record<string, string>;
+}
+
+export type DiagnosticAnswers = Record<string, string>;
+
+export interface DiagnosticState {
+  version: 1;
+  answers: DiagnosticAnswers;
+  profile: InstitutionProfile;
+  observations: string[];
+}
 export interface Recommendation {
   decisionId: string;
   priority: Priority;

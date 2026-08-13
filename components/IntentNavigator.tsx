@@ -85,7 +85,7 @@ export function IntentNavigator() {
           <button className="text-button" onClick={changeGoal}>← Change goal</button>
           <p className="eyebrow">Your path</p>
           <h1>{intent.title}</h1>
-          <p className="lede">Eight short questions will identify three strategic starting points.</p>
+          <p className="lede">Fourteen short questions about observable institutional conditions will identify three strategic starting points.</p>
         </section>
         <section className="form-shell"><ProfileForm /></section>
       </main>
@@ -114,9 +114,9 @@ export function IntentNavigator() {
         <p>{intent.description}</p>
       </section>
       <section className="question-panel">
-        <div className="progress" aria-label={`Question ${questionIndex + 1} of ${intent.contextQuestions.length}`}>
+        <div className="progress" role="progressbar" aria-label="Pathway progress" aria-valuemin={1} aria-valuemax={intent.contextQuestions.length} aria-valuenow={questionIndex + 1} aria-valuetext={`Question ${questionIndex + 1} of ${intent.contextQuestions.length}`}>
           <span>Question {questionIndex + 1} of {intent.contextQuestions.length}</span>
-          <div><i style={{ width: `${((questionIndex + 1) / intent.contextQuestions.length) * 100}%` }} /></div>
+          <div aria-hidden="true"><i style={{ width: `${((questionIndex + 1) / intent.contextQuestions.length) * 100}%` }} /></div>
         </div>
         <fieldset>
           <legend>{question.prompt}</legend>

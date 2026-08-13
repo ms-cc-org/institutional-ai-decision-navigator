@@ -128,6 +128,27 @@
   padding: clamp(28px, 5vw, 52px);
 }
 
+.diagnostic-form {
+  max-width: 820px;
+}
+
+.diagnostic-form fieldset {
+  padding: 0;
+}
+
+.diagnostic-form legend {
+  font-family: Georgia, serif;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.18;
+  margin-bottom: 12px;
+}
+
+.diagnostic-form fieldset > p {
+  color: var(--muted);
+  margin: 0 0 26px;
+  max-width: 680px;
+}
+
 .progress {
   color: var(--muted);
   font-size: 12px;
@@ -217,6 +238,17 @@
   opacity: .45;
 }
 
+.text-button:focus-visible,
+.result-actions button:focus-visible,
+.primary-button:focus-visible,
+.secondary-button:focus-visible,
+.disclosures summary:focus-visible,
+.card-evidence summary:focus-visible,
+.technical-metadata summary:focus-visible {
+  outline: 3px solid #8db7a4;
+  outline-offset: 3px;
+}
+
 .results-head {
   border-bottom: 1px solid var(--line);
   padding: 60px 0 42px;
@@ -249,9 +281,56 @@
 }
 
 .result-actions {
+  align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: 22px;
   margin-top: 28px;
+}
+
+.restart-confirmation {
+  align-items: center;
+  background: var(--white);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 9px 12px;
+}
+
+.restart-confirmation > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.action-status {
+  color: var(--green) !important;
+  font-size: 12px;
+  min-height: 18px;
+}
+
+.heard-summary {
+  background: var(--white);
+  border-left: 3px solid var(--green);
+  margin: 34px 0 12px;
+  max-width: 820px;
+  padding: 25px 30px;
+}
+
+.heard-summary h2 {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+  margin: 4px 0 12px;
+}
+
+.heard-summary ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.heard-summary li {
+  margin: 5px 0;
 }
 
 .result-actions a {
@@ -384,6 +463,11 @@
   max-width: 880px;
 }
 
+.conditional-consider {
+  border-top: 1px solid var(--line);
+  padding-top: 38px;
+}
+
 .then-consider a {
   align-items: center;
   border-bottom: 1px solid var(--line);
@@ -416,6 +500,11 @@
   }
 
   .result-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .restart-confirmation {
     align-items: flex-start;
     flex-direction: column;
   }
