@@ -185,6 +185,86 @@ export interface Intent {
 }
 
 export type IntentAnswers = Record<string, string>;
+export interface NavigatorSession {
+  version: 1;
+  intentId: IntentId;
+  answers: IntentAnswers;
+  entryMode: "guided" | "situation" | "shortcut";
+}
+
+export interface InstitutionContextState {
+  version: 1;
+  profile: InstitutionProfile;
+}
+
+export type SituationTopic =
+  | "strategy"
+  | "governance"
+  | "policy"
+  | "procurement"
+  | "research"
+  | "infrastructure"
+  | "teaching_learning"
+  | "skills_support"
+  | "operations"
+  | "unknown";
+
+export interface SituationContext {
+  topic: SituationTopic;
+  institutionType: InstitutionProfile["institutionType"] | "unknown";
+  institutionScale: InstitutionProfile["institutionScale"] | "unknown";
+  adoption: InstitutionProfile["aiAdoptionLevel"] | "unknown";
+  governance: InstitutionProfile["aiGovernanceMaturity"] | "unknown";
+  policy: "approved" | "draft" | "none" | "unknown";
+  dataSensitivity: "public" | "internal" | "sensitive" | "unknown";
+  procurement: "new" | "existing" | "none" | "unknown";
+  peopleImpact: "yes" | "no" | "unknown";
+}
+
+export interface SituationState {
+  version: 1;
+  rawText: string;
+  context: SituationContext;
+  observations: string[];
+  confirmed: boolean;
+}
+
+export type ValidatorRole =
+  | "cio_it_leadership"
+  | "research_computing"
+  | "faculty"
+  | "research_administration"
+  | "teaching_learning"
+  | "library"
+  | "privacy_security_compliance"
+  | "accessibility"
+  | "senior_leadership"
+  | "student"
+  | "other";
+
+export interface ValidatorProfile {
+  version: 1;
+  role: ValidatorRole | "";
+  institutionType: InstitutionProfile["institutionType"] | "";
+  institutionSize: "under_2500" | "2500_5000" | "5000_15000" | "over_15000" | "prefer_not" | "";
+}
+
+export interface DecisionFeedback {
+  decisionId: string;
+  relevance: "yes" | "depends" | "no" | "unsure" | "";
+  clarity: "yes" | "mostly" | "no" | "";
+  sequencing: "earlier" | "about_here" | "later" | "depends" | "";
+  comments: string;
+  updatedAt: string;
+}
+
+export interface RelationshipFeedback {
+  from: string;
+  to: string;
+  response: "yes" | "depends" | "no" | "unsure" | "";
+  comments: string;
+  updatedAt: string;
+}
 export type IntentRecommendationStatus =
   | "PRIMARY"
   | "NEXT"

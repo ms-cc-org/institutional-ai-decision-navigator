@@ -8,7 +8,9 @@ import { intentsById } from "@/lib/intents";
 import { decisionsById, ontology } from "@/lib/ontology";
 import { parseDiagnosticState } from "@/lib/diagnostics";
 import { buildRoadmapMarkdown, restartNavigator } from "@/lib/roadmap-export";
-import type { InstitutionProfile, IntentAnswers, IntentId, IntentRecommendation } from "@/lib/types";
+import { parseInstitutionProfile, parseNavigatorSession } from "@/lib/session";
+import { parseSituationState } from "@/lib/situation-interpreter";
+import type { IntentRecommendation } from "@/lib/types";
 import { EvidenceSummary } from "./EvidenceDisclosure";
 import { FollowUpSection } from "./FollowUpSection";
 import { RelationshipProvenanceNote } from "./RelationshipProvenanceNote";
@@ -20,10 +22,16 @@ const subscribeToStorage = (onChange: () => void) => {
 const getSession = () => localStorage.getItem("navigator-session") ?? "";
 const getProfile = () => localStorage.getItem("institution-profile") ?? "";
 const getDiagnostics = () => localStorage.getItem("diagnostic-state") ?? "";
+const getSituation = () => localStorage.getItem("situation-state") ?? "";
 const getServerValue = () => undefined;
 
 function RecommendationBlock({ item, number }: { item: IntentRecommendation; number: number }) {
   const decision = decisionsById.get(item.decisionId)!;
+  const unlocks = ontology.relationships
+    .filter((relationship) => relationship.relationship === "prerequisite_for" && relationship.from === item.decisionId)
+    .slice(0, 3)
+    .map((relationship) => decisionsById.get(relationship.to))
+    .filter(Boolean);
   return (
     <article className="priority-item">
       <div className="priority-number">{String(number).padStart(2, "0")}</div>
@@ -31,6 +39,7 @@ function RecommendationBlock({ item, number }: { item: IntentRecommendation; num
         <h2>{item.plainLanguageTitle}</h2>
         <p className="reason">{item.reason}</p>
         <div className="action-callout"><span>Start with</span><p>{item.recommendedAction}</p></div>
+        {unlocks.length > 0 && <div className="unlocks"><span>What this helps unlock</span><ul>{unlocks.map((unlocked) => <li key={unlocked!.id}>{unlocked!.question}</li>)}</ul></div>}
         <div className="disclosures">
           <details>
             <summary>Evidence behind this recommendation</summary>
@@ -64,31 +73,35 @@ export function FocusedRoadmap() {
   const rawSession = useSyncExternalStore(subscribeToStorage, getSession, getServerValue);
   const rawProfile = useSyncExternalStore(subscribeToStorage, getProfile, getServerValue);
   const rawDiagnostics = useSyncExternalStore(subscribeToStorage, getDiagnostics, getServerValue);
+  const rawSituation = useSyncExternalStore(subscribeToStorage, getSituation, getServerValue);
   const [confirmingRestart, setConfirmingRestart] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
   const router = useRouter();
   const parsed = useMemo(() => {
     if (rawSession === undefined) return undefined;
     try {
-      const session = JSON.parse(rawSession) as { intentId: IntentId; answers: IntentAnswers };
+      const session = parseNavigatorSession(rawSession);
+      if (!session) return null;
       const diagnostics = rawDiagnostics ? parseDiagnosticState(rawDiagnostics) : null;
-      const profile = diagnostics?.profile ?? (rawProfile ? JSON.parse(rawProfile) as InstitutionProfile : undefined);
-      return { session, profile, diagnostics, roadmap: evaluateIntent(session.intentId, session.answers ?? {}, profile) };
+      const situation = rawSituation ? parseSituationState(rawSituation) : null;
+      const profile = diagnostics?.profile ?? (rawProfile ? parseInstitutionProfile(rawProfile) : null) ?? undefined;
+      return { session, profile, diagnostics, situation, roadmap: evaluateIntent(session.intentId, session.answers ?? {}, profile) };
     } catch {
       return null;
     }
-  }, [rawSession, rawProfile, rawDiagnostics]);
+  }, [rawSession, rawProfile, rawDiagnostics, rawSituation]);
 
   if (parsed === undefined) return <section className="empty" aria-live="polite"><p>Preparing your priorities…</p></section>;
   if (!parsed) return <section className="empty"><p className="eyebrow">No current path</p><h1>Choose what you’re trying to figure out.</h1><Link className="button-link" href="/">Choose a goal →</Link></section>;
 
-  const { session, roadmap, diagnostics } = parsed;
+  const { session, roadmap, diagnostics, situation } = parsed;
   const intent = intentsById.get(session.intentId)!;
   const restart = () => {
     restartNavigator(true, localStorage);
     router.push("/");
   };
-  const markdown = buildRoadmapMarkdown({ roadmap, observations: diagnostics?.observations ?? [] });
+  const observations = session.entryMode === "situation" ? situation?.observations ?? [] : diagnostics?.observations ?? [];
+  const markdown = buildRoadmapMarkdown({ roadmap, observations });
   const copySummary = async () => {
     try {
       await navigator.clipboard.writeText(markdown);
@@ -113,10 +126,10 @@ export function FocusedRoadmap() {
     <>
       <section className="results-head">
         <div className="current-path"><span>Current path</span><strong>{intent.title}</strong></div>
-        <h1>{session.intentId === "getting-started" ? "Your starting point" : "Based on what you’ve told us, resolve these decisions first."}</h1>
+        <h1>{session.intentId === "getting-started" ? "Your starting point" : session.entryMode === "situation" ? "Based on what you described, resolve these decisions first." : "Based on what you’ve told us, resolve these decisions first."}</h1>
         <p>{roadmap.primary.length} focused priorit{roadmap.primary.length === 1 ? "y" : "ies"}, sequenced from your answers and the decision dependencies behind them.</p>
         <nav className="result-actions" aria-label="Roadmap actions">
-          <Link href={`/?intent=${session.intentId}`}>Change an answer</Link>
+          <Link href={session.entryMode === "situation" ? "/?mode=ask" : `/?intent=${session.intentId}`}>{session.entryMode === "situation" ? "Revise description" : "Change an answer"}</Link>
           <Link href="/">Change goal</Link>
           <button onClick={copySummary}>Copy summary</button>
           <button onClick={exportMarkdown}>Export as Markdown</button>
@@ -131,11 +144,11 @@ export function FocusedRoadmap() {
         <p className="action-status" aria-live="polite">{copyStatus}</p>
       </section>
 
-      {session.intentId === "getting-started" && diagnostics?.observations.length ? (
+      {observations.length ? (
         <section className="heard-summary" aria-labelledby="heard-heading">
           <p className="eyebrow">Context</p>
           <h2 id="heard-heading">What we heard</h2>
-          <ul>{diagnostics.observations.map((observation) => <li key={observation}>{observation}</li>)}</ul>
+          <ul>{observations.map((observation) => <li key={observation}>{observation}</li>)}</ul>
         </section>
       ) : null}
 

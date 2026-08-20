@@ -6,10 +6,17 @@ export default function MethodologyPage() {
   return (
     <main className="methodology-page">
       <header>
-        <p className="eyebrow">Ontology v0.3.2 methodology</p>
-        <h1>Evidence-traceable, with support and corroboration kept separate.</h1>
-        <p className="lede">A decision can be directly supported by a source without being independently corroborated. The navigator represents those as distinct evidence dimensions and does not combine them into a score.</p>
+        <p className="eyebrow">About the MS-CC pilot · Ontology v0.3.2</p>
+        <h1>An evidence-traceable institutional AI decision-support tool.</h1>
+        <p className="lede">The navigator helps institutions identify decisions, sequence action, and inspect the evidence and synthesis behind the model. It does not assign an overall readiness or maturity score.</p>
       </header>
+
+      <section className="methodology-positioning">
+        <div><h2>What this is</h2><p>A structured decision navigator built from normalized guidance, modeled relationships, observable institutional context, and deterministic recommendation rules.</p></div>
+        <div><h2>What this is not</h2><ul><li>Not an AI maturity score</li><li>Not legal advice</li><li>Not a replacement for institutional governance</li><li>Not an LLM-generated recommendation system</li><li>Not yet a practitioner-validated ontology</li></ul></div>
+      </section>
+
+      <section className="method-flow" aria-labelledby="method-flow-heading"><p className="eyebrow">Conceptual method</p><h2 id="method-flow-heading">From guidance to institutional action</h2><p>Existing guidance and evidence → normalized institutional decisions → modeled decision relationships → institutional context → deterministic recommendations → evidence provenance → practitioner validation.</p><p>Some normalized decisions and all current relationships involve researcher synthesis. Structural confidence is not the same as practitioner or source validation.</p></section>
 
       <section className="audit-findings" aria-label="Headline evidence audit findings">
         <div><strong>79</strong><span>Directly source-supported decisions</span></div>
@@ -43,7 +50,17 @@ export default function MethodologyPage() {
           <h2>Shared source context</h2>
           <p>Sources shared by connected decisions provide context for the endpoint topics. They do not independently validate the relationship itself.</p>
         </div>
+        <div>
+          <h2>Researcher synthesis</h2>
+          <p>Normalization turns varied literature and practitioner guidance into consistent institutional decision statements. Not every formulation is directly stated in a source, and synthesis is represented rather than hidden.</p>
+        </div>
+        <div>
+          <h2>Derived from vs. supported by</h2>
+          <p>Ontology v0.3.2 does not contain a <code>derivation_sources</code> field. The pilot therefore does not claim which sources originally formed each normalized decision beyond the evidence links actually present.</p>
+        </div>
       </section>
+
+      <section className="methodology-audit"><p className="eyebrow">Practitioner validation</p><h2>MS-CC is inviting working-group review.</h2><p>Decision detail pages include an optional, collapsed review form. Feedback is saved only on the reviewer’s device and can be exported as JSON for manual sharing. It is not centrally submitted.</p></section>
 
       <section className="methodology-audit">
         <p className="eyebrow">Authoritative release audit</p>

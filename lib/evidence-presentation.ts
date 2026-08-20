@@ -38,7 +38,7 @@ export const specificityLabel = (specificity: EvidenceLink["specificity"] | Deci
 })[specificity];
 
 export const validationStatusLabel = (status: ValidationStatus) => ({
-  not_validated: "Not validated",
+  not_validated: "Not yet practitioner validated",
   practitioner_supported: "Practitioner supported",
   mixed: "Mixed practitioner feedback",
   challenged: "Challenged during practitioner review",

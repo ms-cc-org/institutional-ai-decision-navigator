@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EvidenceDetail } from "@/components/EvidenceDisclosure";
 import { RelationshipProvenanceNote } from "@/components/RelationshipProvenanceNote";
+import { WorkingGroupReview } from "@/components/WorkingGroupReview";
 import { validationStatusLabel } from "@/lib/evidence-presentation";
 import { decisionsById, ontology } from "@/lib/ontology";
 
@@ -44,7 +45,7 @@ export default async function DecisionDetail({ params }: { params: Promise<{ id:
 
   return (
     <main className="detail-page">
-      <Link href="/roadmap" className="text-link">← Back to priorities</Link>
+      <nav className="detail-backlinks" aria-label="Decision navigation"><Link href="/explore" className="text-link">← Explore decisions</Link><Link href="/roadmap" className="text-link">View current priorities</Link></nav>
       <header className="detail-head user-first">
         <p className="domain">{decision.domain} / {decision.subdomain}</p>
         <h1>{decision.question}</h1>
@@ -83,6 +84,8 @@ export default async function DecisionDetail({ params }: { params: Promise<{ id:
           {otherConnections.length === 0 && <p>No related or downstream decisions are defined.</p>}
         </div>
       </section>
+
+      <WorkingGroupReview decision={decision} prerequisiteRelationships={prerequisites.map(({ relationship }) => relationship)} />
 
       <details className="technical-metadata">
         <summary>Technical metadata</summary>

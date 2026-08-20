@@ -1,6 +1,6 @@
 # Institutional AI Decision Navigator
 
-An evidence-traceable planning tool that helps higher-education leaders resolve the few AI decisions that matter for the goal in front of them. A user chooses an intent, answers three to five targeted questions, and receives no more than five primary decisions with actions, evidence provenance, and dependencies. A short general assessment remains available for users who do not know where to start.
+An MS-CC evidence-traceable planning tool that helps higher-education leaders resolve the few AI decisions that matter for the work in front of them. The pilot supports three entry modes: an observable guided diagnostic, a deterministic natural-language context interpreter, and a searchable decision-model explorer.
 
 ## Ontology
 
@@ -14,7 +14,9 @@ An evidence-traceable planning tool that helps higher-education leaders resolve 
 
 `lib/intent-engine.ts` starts with the selected intent's seed decisions, activates branches from the user's answers, and traverses canonical prerequisite relationships. It returns at most five `PRIMARY` decisions plus a small set of `NEXT` or `CONDITIONAL` items. Explanations use deterministic templates tied to answers and ontology fields. The general pathway returns exactly three priorities and a deterministic 0–90 day sequence.
 
-The original deterministic profile engine in `lib/engine.ts` is preserved as the general pathway's ranking fallback and remains fully tested. No LLM or external service is involved.
+The original deterministic profile engine in `lib/engine.ts` is preserved as the general pathway's ranking fallback and remains fully tested. The experimental situation interpreter uses local phrase matching to create reviewable structured context; it does not call an LLM or external service. Recommendations in every mode still come from the same deterministic engine.
+
+Working-group review is optional and stored only on the current device. Reviewers can export structured JSON for manual sharing with MS-CC; the pilot does not centrally submit feedback.
 
 See [docs/architecture.md](docs/architecture.md) for the complete data flow and thresholds, and [docs/EVIDENCE_AUDIT_v0.3.2.md](docs/EVIDENCE_AUDIT_v0.3.2.md) for the authoritative evidence and provenance audit.
 
@@ -49,7 +51,7 @@ If the first deployment reports that Pages is not enabled, open the repository's
 ## Known MVP limitations
 
 - The profile is stored only in the current browser; there are no accounts or shared roadmaps.
-- Targeted pathways use three to five context questions; the general assessment uses eight inputs and typed defaults for non-visible profile fields.
+- Targeted pathways use three to five context questions; the general assessment uses fourteen observable indicators and deterministic internal defaults where the current engine still requires additional fields.
 - Prerequisite completion is estimated from profile maturity rather than collected decision-by-decision.
 - Scores and thresholds are transparent heuristics, not validated institutional benchmarks.
 - Some source records lack a year or URL, and all evidence links still lack passage-level source locations. The interface leaves those gaps visible rather than filling them by inference.

@@ -6,6 +6,7 @@ import {
   validationStatusLabel,
 } from "../lib/evidence-presentation";
 import type { Relationship } from "../lib/types";
+import { sourcesById } from "../lib/ontology";
 
 export function RelationshipProvenanceNote({ relationship }: { relationship: Relationship }) {
   return (
@@ -18,7 +19,7 @@ export function RelationshipProvenanceNote({ relationship }: { relationship: Rel
         <div><dt>Validation</dt><dd>{validationStatusLabel(relationship.provenance.validation_status)}</dd></div>
       </dl>
       {relationship.provenance.supporting_source_ids.length > 0 && (
-        <p>These sources provide context for the connected decisions; they do not independently validate the relationship itself.</p>
+        <p>Context sources: {relationship.provenance.supporting_source_ids.map((id) => sourcesById.get(id)?.title).filter(Boolean).join("; ")}. These sources provide context for the connected decisions; they do not independently validate the relationship itself.</p>
       )}
     </div>
   );

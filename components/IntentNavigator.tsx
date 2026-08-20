@@ -1,10 +1,13 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { intents, intentsById } from "@/lib/intents";
 import type { IntentAnswers, IntentId } from "@/lib/types";
+import { createNavigatorSession } from "@/lib/session";
 import { ProfileForm } from "./ProfileForm";
+import { SituationInterpreter } from "./SituationInterpreter";
 
 const subscribeToStorage = (onChange: () => void) => {
   window.addEventListener("storage", onChange);
@@ -16,8 +19,8 @@ const subscribeToLocation = (onChange: () => void) => {
   window.addEventListener("popstate", onChange);
   return () => window.removeEventListener("popstate", onChange);
 };
-const getLocationIntent = () => new URLSearchParams(window.location.search).get("intent") ?? "";
-const getServerLocationIntent = () => "";
+const getLocationSearch = () => window.location.search;
+const getServerLocationSearch = () => "";
 
 function readSavedAnswers(value: string, intentId: IntentId | null): IntentAnswers {
   if (!value || !intentId) return {};
@@ -30,19 +33,23 @@ function readSavedAnswers(value: string, intentId: IntentId | null): IntentAnswe
 }
 
 export function IntentNavigator() {
-  const locationIntent = useSyncExternalStore(subscribeToLocation, getLocationIntent, getServerLocationIntent);
+  const locationSearch = useSyncExternalStore(subscribeToLocation, getLocationSearch, getServerLocationSearch);
   const [selectedIntentId, setSelectedIntentId] = useState<IntentId | null>(null);
+  const [selectedMode, setSelectedMode] = useState<"situation" | null>(null);
+  const searchParams = new URLSearchParams(locationSearch);
+  const locationIntent = searchParams.get("intent") ?? "";
   const locationIntentId = intentsById.has(locationIntent as IntentId) ? locationIntent as IntentId : null;
   const intentId = selectedIntentId ?? locationIntentId;
   const [questionIndex, setQuestionIndex] = useState(0);
   const [draftAnswers, setDraftAnswers] = useState<IntentAnswers>({});
   const savedSession = useSyncExternalStore(subscribeToStorage, getStoredSession, getServerSession);
-  const savedAnswers = useMemo(() => readSavedAnswers(savedSession, intentId), [savedSession, intentId]);
+  const savedAnswers = readSavedAnswers(savedSession, intentId);
   const answers = { ...savedAnswers, ...draftAnswers };
   const router = useRouter();
   const intent = intentId ? intentsById.get(intentId) : undefined;
 
   const chooseIntent = (nextIntentId: IntentId) => {
+    setSelectedMode(null);
     setSelectedIntentId(nextIntentId);
     setQuestionIndex(0);
     setDraftAnswers({});
@@ -52,28 +59,38 @@ export function IntentNavigator() {
     window.history.replaceState({}, "", window.location.pathname);
     window.dispatchEvent(new PopStateEvent("popstate"));
     setSelectedIntentId(null);
+    setSelectedMode(null);
     setQuestionIndex(0);
     setDraftAnswers({});
   };
+
+  if (selectedMode === "situation" || searchParams.get("mode") === "ask") {
+    return <SituationInterpreter onBack={changeGoal} />;
+  }
 
   if (!intent) {
     return (
       <main className="intent-home">
         <section className="intent-intro">
-          <p className="eyebrow">Institutional AI Decision Navigator</p>
-          <h1>What are you trying to figure out?</h1>
-          <p className="lede">Choose the question closest to the work in front of you. We’ll ask only for the context needed to identify your next decisions.</p>
+          <p className="eyebrow">An MS-CC decision-support resource</p>
+          <h1>How would you like to start?</h1>
+          <p className="lede">Choose the way that best matches what you need today. Every path uses the same evidence-traceable decision model.</p>
         </section>
-        <section className="intent-list" aria-label="Choose your goal">
-          {intents.map((item, index) => (
-            <button key={item.id} onClick={() => chooseIntent(item.id)} className={item.id === "getting-started" ? "intent-option general" : "intent-option"}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
-              <strong>{item.title}</strong>
-              <small>{item.description}</small>
-              <b aria-hidden="true">→</b>
-            </button>
-          ))}
+        <section className="entry-modes" aria-label="Choose how to start">
+          <article><p className="eyebrow">Guide me</p><h2>Guide me through it</h2><p>I&apos;m not sure where to start. Ask me a few questions about my institution and help me identify the decisions that matter most.</p><button onClick={() => chooseIntent("getting-started")}>Start guided assessment <span aria-hidden="true">→</span></button></article>
+          <article><p className="eyebrow">Ask · <span>Experimental</span></p><h2>Ask about my situation</h2><p>I have a specific problem, project, or question. Let me describe it in my own words.</p><button onClick={() => setSelectedMode("situation")}>Describe my situation <span aria-hidden="true">→</span></button></article>
+          <article><p className="eyebrow">Explore</p><h2>Explore the decision model</h2><p>I know what I&apos;m looking for. Let me browse institutional AI decisions, dependencies, and evidence.</p><Link href="/explore">Explore decisions <span aria-hidden="true">→</span></Link></article>
         </section>
+        <details className="intent-shortcuts">
+          <summary>I already know my goal</summary>
+          <div className="intent-list" aria-label="Specific decision pathways">
+            {intents.filter((item) => item.id !== "getting-started").map((item, index) => (
+              <button key={item.id} onClick={() => chooseIntent(item.id)} className="intent-option">
+                <span>{String(index + 1).padStart(2, "0")}</span><strong>{item.title}</strong><small>{item.description}</small><b aria-hidden="true">→</b>
+              </button>
+            ))}
+          </div>
+        </details>
       </main>
     );
   }
@@ -101,7 +118,7 @@ export function IntentNavigator() {
       setQuestionIndex((current) => current + 1);
       return;
     }
-    localStorage.setItem("navigator-session", JSON.stringify({ intentId: intent.id, answers }));
+    localStorage.setItem("navigator-session", JSON.stringify(createNavigatorSession(intent.id, answers, "shortcut")));
     router.push("/roadmap");
   };
 

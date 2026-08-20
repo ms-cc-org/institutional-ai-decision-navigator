@@ -31,7 +31,7 @@ describe("v0.3.2 evidence presentation", () => {
     const html = renderToStaticMarkup(<RelationshipProvenanceNote relationship={relationship} />);
     expect(html).toContain("Researcher inferred");
     expect(html).toContain("High confidence");
-    expect(html).toContain("Not validated");
+    expect(html).toContain("Not yet practitioner validated");
     expect(html).toContain("do not independently validate the relationship itself");
   });
 

@@ -4,6 +4,7 @@ import { FormEvent, useMemo, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { createDiagnosticState, diagnosticIndicators, parseDiagnosticState } from "@/lib/diagnostics";
 import type { DiagnosticAnswers } from "@/lib/types";
+import { createInstitutionContext, createNavigatorSession } from "@/lib/session";
 
 const subscribeToStorage = (onChange: () => void) => {
   window.addEventListener("storage", onChange);
@@ -36,8 +37,8 @@ export function ProfileForm() {
     }
     const diagnosticState = createDiagnosticState(answers);
     localStorage.setItem("diagnostic-state", JSON.stringify(diagnosticState));
-    localStorage.setItem("institution-profile", JSON.stringify(diagnosticState.profile));
-    localStorage.setItem("navigator-session", JSON.stringify({ intentId: "getting-started", answers: {} }));
+    localStorage.setItem("institution-profile", JSON.stringify(createInstitutionContext(diagnosticState.profile)));
+    localStorage.setItem("navigator-session", JSON.stringify(createNavigatorSession("getting-started", {}, "guided")));
     router.push("/roadmap");
   };
 

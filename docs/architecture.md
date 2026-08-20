@@ -6,11 +6,11 @@ The application is a static-friendly Next.js App Router project. `data/ontology.
 
 1. `lib/ontology.ts` parses and validates decision IDs, maturity stages, and relationship endpoints.
 2. `lib/intents.ts` defines the typed, application-level intent paths, seed decision IDs, relevant domains, and context questions separately from the ontology.
-3. `components/IntentNavigator.tsx` progressively collects only the answers needed for the selected goal. The secondary general path uses `components/ProfileForm.tsx`.
-4. The current intent, answers, and optional profile are stored only in browser local storage.
+3. `components/IntentNavigator.tsx` presents three primary entry modes. The guided mode uses `components/ProfileForm.tsx`; the experimental situation mode uses `lib/situation-interpreter.ts`; the explorer filters the same canonical decisions.
+4. The current intent, answers, diagnostic state, situation interpretation, and optional profile are stored only in browser local storage using versioned structures where schemas have evolved.
 5. `lib/intent-engine.ts` activates deterministic answer branches, traverses ontology prerequisites, and emits no more than five primary recommendations plus a few next or conditional decisions.
 6. `components/FocusedRoadmap.tsx` renders plain-language explanations and actions first. Evidence IDs and dependency links sit in expandable secondary sections.
-7. Detail routes render user-facing ontology content first and place technical ontology metadata in a secondary disclosure.
+7. Detail routes render user-facing ontology content first and place technical ontology metadata and optional working-group validation in secondary disclosures.
 
 ## Intent-aware selection
 
@@ -18,7 +18,7 @@ Every intent starts from existing ontology seed IDs. Answer rules narrow or exte
 
 Recommendation titles and explanation templates are application metadata. They do not create new decisions or replace the ontology's questions, recommendation logic, outputs, sources, or relationships. Every result retains its decision ID and source IDs for traceability.
 
-The general pathway deterministically selects exactly three strategic priorities from governance, data/risk, and the user's stated objective. Those decisions become a 0–30, 30–60, and 60–90 day sequence.
+The general pathway deterministically selects exactly three strategic priorities from governance, data/risk, and the user's stated objective. Those decisions become a 0–30, 30–60, and 60–90 day sequence. The situation interpreter maps explicit phrases to structured fields, leaves unmentioned context unknown, requires review, and only then maps to an existing intent and deterministic engine inputs.
 
 ## Preserved profile ranking model
 
@@ -30,4 +30,4 @@ Prerequisite IDs come exclusively from ontology relationships. Because the MVP d
 
 ## Boundaries
 
-There is no server database, authentication, external AI service, or generated recommendation prose. Path and profile state are device-local. The ontology does not include full evidence source records, so the interface can show source IDs but cannot provide human-readable source names or links.
+There is no server database, authentication, external AI service, or generated recommendation prose. Path, profile, and practitioner feedback are device-local. The v0.3.2 ontology includes a 27-record source registry and assertion-level evidence links, so the interface resolves human-readable source metadata while leaving missing URLs, years, and source locations explicit. The schema does not currently include `derivation_sources`; the application does not invent that provenance.

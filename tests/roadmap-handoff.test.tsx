@@ -19,16 +19,18 @@ describe("roadmap handoff", () => {
     const diagnosticState = createDiagnosticState(answers);
     const roadmap = evaluateIntent("getting-started", {}, diagnosticState.profile);
     const markdown = buildRoadmapMarkdown({ roadmap, observations: diagnosticState.observations, generatedAt: new Date("2026-08-12T12:00:00Z") });
-    expect(markdown).toContain("# Institutional AI Decision Roadmap");
-    expect(markdown).toContain("## Context / What we heard");
+    expect(markdown).toContain("# MS-CC Institutional AI Decision Navigator");
+    expect(markdown).toContain("## Institutional context / What we heard");
     expect(markdown).toContain("## Primary priorities");
     expect(markdown).toContain(roadmap.primary[0].plainLanguageTitle);
     expect(markdown).toContain("Source support:");
     expect(markdown).toContain("Independent corroboration:");
-    expect(markdown).toContain("Validation status: Not validated");
+    expect(markdown).toContain("Validation status: Not yet practitioner validated");
     expect(markdown).toContain("## Coming up next");
     expect(markdown).toContain("## Only if this applies");
-    expect(markdown).toContain("## Next 90 days");
+    expect(markdown).toContain("## Your next 90 days");
+    expect(markdown).toContain("© 2026 MS-CC, in partnership with Internet2.");
+    expect(markdown).toContain("National Science Foundation under Grant #2234326.");
     expect(markdown).not.toMatch(/\b(?:GOV|DAT|TL)-\d{3}\b/);
   });
 
@@ -46,6 +48,6 @@ describe("roadmap handoff", () => {
     expect(restartNavigator(false, storage)).toBe(false);
     expect(storage.removeItem).not.toHaveBeenCalled();
     expect(restartNavigator(true, storage)).toBe(true);
-    expect(storage.removeItem).toHaveBeenCalledTimes(3);
+    expect(storage.removeItem).toHaveBeenCalledTimes(4);
   });
 });
