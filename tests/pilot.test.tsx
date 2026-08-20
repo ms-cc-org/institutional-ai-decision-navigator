@@ -28,6 +28,7 @@ describe("MS-CC pilot shell", () => {
     const header = renderToStaticMarkup(<SiteHeader />);
     const footer = renderToStaticMarkup(<SiteFooter />);
     expect(header).toContain("/brand/mscc-logo-horizontal.png");
+    expect(header).toContain("Browse topics");
     expect(footer).toContain("/brand/mscc-logo-vertical.png");
     exactAttribution.forEach((line) => expect(footer).toContain(line));
   });
@@ -36,8 +37,20 @@ describe("MS-CC pilot shell", () => {
     const source = readFileSync("components/IntentNavigator.tsx", "utf8");
     expect(source).toContain("Guide me through it");
     expect(source).toContain("Ask about my situation");
-    expect(source).toContain("Explore the decision model");
+    expect(source).toContain("Explore a topic");
+    expect(source).toContain("Browse topics");
+    expect(source).not.toContain("Explore the decision model");
     expect(source).toContain('href="/explore"');
+  });
+
+  it("uses plain-language explorer headings, search copy, and topic labels", () => {
+    const source = readFileSync("components/DecisionExplorer.tsx", "utf8");
+    expect(source).toContain("Explore institutional AI decisions");
+    expect(source).toContain("Search decisions or recommended actions");
+    expect(source).toContain('Try "AI policy," "student data," "GPUs," or "vendor review"');
+    expect(source).toContain("All topics");
+    expect(source).not.toContain("Search decision text or expected output");
+    expect(source).not.toContain("Explore the decision model");
   });
 });
 

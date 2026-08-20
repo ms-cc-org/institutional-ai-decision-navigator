@@ -13,7 +13,7 @@ export function SiteHeader() {
         <Link href="/" className="product-name">Institutional AI <span>Decision Navigator</span></Link>
       </div>
       <nav className="site-nav" aria-label="Primary navigation">
-        <Link href="/explore">Explore</Link>
+        <Link href="/explore">Browse topics</Link>
         <Link href="/methodology">Methodology</Link>
         <Link href="/sources">Sources</Link>
         <span className="version">Pilot · Evidence-traceable decision support</span>

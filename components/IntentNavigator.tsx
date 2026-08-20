@@ -74,12 +74,12 @@ export function IntentNavigator() {
         <section className="intent-intro">
           <p className="eyebrow">An MS-CC decision-support resource</p>
           <h1>How would you like to start?</h1>
-          <p className="lede">Choose the way that best matches what you need today. Every path uses the same evidence-traceable decision model.</p>
+          <p className="lede">Choose the way that best matches what you need today. Every path helps you find practical, evidence-traceable guidance.</p>
         </section>
         <section className="entry-modes" aria-label="Choose how to start">
-          <article><p className="eyebrow">Guide me</p><h2>Guide me through it</h2><p>I&apos;m not sure where to start. Ask me a few questions about my institution and help me identify the decisions that matter most.</p><button onClick={() => chooseIntent("getting-started")}>Start guided assessment <span aria-hidden="true">→</span></button></article>
-          <article><p className="eyebrow">Ask · <span>Experimental</span></p><h2>Ask about my situation</h2><p>I have a specific problem, project, or question. Let me describe it in my own words.</p><button onClick={() => setSelectedMode("situation")}>Describe my situation <span aria-hidden="true">→</span></button></article>
-          <article><p className="eyebrow">Explore</p><h2>Explore the decision model</h2><p>I know what I&apos;m looking for. Let me browse institutional AI decisions, dependencies, and evidence.</p><Link href="/explore">Explore decisions <span aria-hidden="true">→</span></Link></article>
+          <article><p className="eyebrow">Guide me</p><h2>Guide me through it</h2><p>Not sure where to start? Answer a few questions about your institution and get a prioritized path forward.</p><button onClick={() => chooseIntent("getting-started")}>Start guided assessment <span aria-hidden="true">→</span></button></article>
+          <article><p className="eyebrow">Ask · <span>Experimental</span></p><h2>Ask about my situation</h2><p>Have a specific question or challenge? Describe what&apos;s happening and find the decisions that matter.</p><button onClick={() => setSelectedMode("situation")}>Describe my situation <span aria-hidden="true">→</span></button></article>
+          <article><p className="eyebrow">Explore</p><h2>Explore a topic</h2><p>Browse practical guidance on AI governance, policy, data, security, infrastructure, teaching, research, and more.</p><Link href="/explore">Browse topics <span aria-hidden="true">→</span></Link></article>
         </section>
         <details className="intent-shortcuts">
           <summary>I already know my goal</summary>

@@ -45,7 +45,7 @@ export default async function DecisionDetail({ params }: { params: Promise<{ id:
 
   return (
     <main className="detail-page">
-      <nav className="detail-backlinks" aria-label="Decision navigation"><Link href="/explore" className="text-link">← Explore decisions</Link><Link href="/roadmap" className="text-link">View current priorities</Link></nav>
+      <nav className="detail-backlinks" aria-label="Decision navigation"><Link href="/explore" className="text-link">← Browse topics</Link><Link href="/roadmap" className="text-link">View current priorities</Link></nav>
       <header className="detail-head user-first">
         <p className="domain">{decision.domain} / {decision.subdomain}</p>
         <h1>{decision.question}</h1>
