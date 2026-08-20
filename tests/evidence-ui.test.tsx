@@ -4,6 +4,7 @@ import RootLayout, { metadata } from "../app/layout";
 import { EvidenceDetail, EvidenceSummary } from "../components/EvidenceDisclosure";
 import { RelationshipProvenanceNote } from "../components/RelationshipProvenanceNote";
 import { decisionsById, ontology } from "../lib/ontology";
+import { CANONICAL_SITE_URL, PRODUCT_DESCRIPTION, PRODUCT_TITLE } from "../lib/site";
 
 describe("v0.3.2 evidence presentation", () => {
   it("separates direct support from absent independent corroboration", () => {
@@ -37,7 +38,10 @@ describe("v0.3.2 evidence presentation", () => {
 
   it("uses evidence-traceable global positioning", () => {
     const html = renderToStaticMarkup(<RootLayout><main>Content</main></RootLayout>);
-    expect(metadata.description).toBe("Evidence-traceable institutional AI decision support.");
+    expect(metadata.title).toBe(PRODUCT_TITLE);
+    expect(metadata.description).toBe(PRODUCT_DESCRIPTION);
+    expect(metadata.alternates?.canonical).toBe(CANONICAL_SITE_URL);
+    expect(metadata.openGraph?.url).toBe(CANONICAL_SITE_URL);
     expect(html).toContain("Evidence-traceable decision support");
     expect(html.toLowerCase()).not.toContain("evidence-based");
   });

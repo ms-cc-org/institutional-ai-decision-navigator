@@ -4,6 +4,7 @@ import { FollowUpSection } from "../components/FollowUpSection";
 import { createDiagnosticState } from "../lib/diagnostics";
 import { evaluateIntent } from "../lib/intent-engine";
 import { buildRoadmapMarkdown, restartNavigator } from "../lib/roadmap-export";
+import { CANONICAL_SITE_URL } from "../lib/site";
 import type { DiagnosticAnswers } from "../lib/types";
 
 const answers: DiagnosticAnswers = {
@@ -20,6 +21,7 @@ describe("roadmap handoff", () => {
     const roadmap = evaluateIntent("getting-started", {}, diagnosticState.profile);
     const markdown = buildRoadmapMarkdown({ roadmap, observations: diagnosticState.observations, generatedAt: new Date("2026-08-12T12:00:00Z") });
     expect(markdown).toContain("# MS-CC Institutional AI Decision Navigator");
+    expect(markdown).toContain(`Resource: ${CANONICAL_SITE_URL}`);
     expect(markdown).toContain("## Institutional context / What we heard");
     expect(markdown).toContain("## Primary priorities");
     expect(markdown).toContain(roadmap.primary[0].plainLanguageTitle);

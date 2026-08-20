@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { CANONICAL_REPOSITORY_URL } from "@/lib/site";
 
-const auditUrl = "https://github.com/amanda-tan/institutional-ai-decision-tool/blob/main/docs/EVIDENCE_AUDIT_v0.3.2.md";
+const auditUrl = `${CANONICAL_REPOSITORY_URL}/blob/main/docs/EVIDENCE_AUDIT_v0.3.2.md`;
 
 export default function MethodologyPage() {
   return (

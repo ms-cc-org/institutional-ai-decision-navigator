@@ -2,6 +2,8 @@
 
 An MS-CC evidence-traceable planning tool that helps higher-education leaders resolve the few AI decisions that matter for the work in front of them. The pilot supports three entry modes: an observable guided diagnostic, a deterministic natural-language context interpreter, and a searchable decision-model explorer.
 
+Canonical repository: [github.com/ms-cc-org/institutional-ai-decision-navigator](https://github.com/ms-cc-org/institutional-ai-decision-navigator)
+
 ## Ontology
 
 `data/ontology.json` is the source of truth. Version 0.3.2 contains 99 decisions, 202 prerequisite or related-to relationships, and 27 registered sources. It keeps source support separate from independent corroboration and includes assertion-level evidence links, controlled decision categories, and relationship provenance.
@@ -44,9 +46,13 @@ The application is configured as a static Next.js export. Pushes to `main` run `
 
 The expected project-site URL is:
 
-`https://amanda-tan.github.io/institutional-ai-decision-tool/`
+[https://ms-cc-org.github.io/institutional-ai-decision-navigator/](https://ms-cc-org.github.io/institutional-ai-decision-navigator/)
 
 If the first deployment reports that Pages is not enabled, open the repository's **Settings → Pages**, set **Source** to **GitHub Actions**, and rerun the workflow from the **Actions** tab.
+
+## Project development
+
+The Institutional AI Decision Navigator was initially conceived and developed by Amanda Tan and is now being developed and refined as an MS-CC resource, with institutional practitioner validation planned through the MS-CC community.
 
 ## Known MVP limitations
 

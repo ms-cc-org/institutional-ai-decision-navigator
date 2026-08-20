@@ -52,6 +52,32 @@ describe("MS-CC pilot shell", () => {
     expect(source).not.toContain("Search decision text or expected output");
     expect(source).not.toContain("Explore the decision model");
   });
+
+  it("keeps GitHub Pages deployment paths repository-independent", () => {
+    const config = readFileSync("next.config.ts", "utf8");
+    const workflow = readFileSync(".github/workflows/deploy-pages.yml", "utf8");
+    const header = readFileSync("components/SiteHeader.tsx", "utf8");
+    const footer = readFileSync("components/SiteFooter.tsx", "utf8");
+    expect(config).toContain('basePath: process.env.PAGES_BASE_PATH ?? ""');
+    expect(workflow).toContain("PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}");
+    expect(header).toContain("`${basePath}/brand/mscc-logo-horizontal.png`");
+    expect(footer).toContain("`${basePath}/brand/mscc-logo-vertical.png`");
+  });
+
+  it("contains no former personal repository URL in production-facing files", () => {
+    const files = [
+      "README.md",
+      "app/layout.tsx",
+      "app/methodology/page.tsx",
+      "lib/roadmap-export.ts",
+      "lib/site.ts",
+      ".github/workflows/deploy-pages.yml",
+    ];
+    const source = files.map((file) => readFileSync(file, "utf8")).join("\n");
+    expect(source).not.toMatch(/amanda-tan\.github\.io|github\.com\/amanda-tan\/institutional-ai-decision-tool/);
+    expect(source).toContain("https://github.com/ms-cc-org/institutional-ai-decision-navigator");
+    expect(source).toContain("https://ms-cc-org.github.io/institutional-ai-decision-navigator/");
+  });
 });
 
 describe("deterministic situation interpretation", () => {
@@ -103,6 +129,7 @@ describe("working-group feedback", () => {
     expect(values.get(DECISION_FEEDBACK_KEY)).toContain("GOV-001");
     expect(values.get(RELATIONSHIP_FEEDBACK_KEY)).toContain("STR-001->GOV-001");
     const exported = buildValidationExport({ version: 1, role: "faculty", institutionType: "masters", institutionSize: "2500_5000" }, { "GOV-001": decision }, { "STR-001->GOV-001": relationship }, ontology.version, new Date("2026-08-20T00:00:00.000Z"));
+    expect(exported.pilot).toBe("MS-CC Institutional AI Decision Navigator");
     expect(exported.ontology_version).toBe("0.3.2");
     expect(exported.decisions_reviewed[0].decisionId).toBe("GOV-001");
     expect(exported.relationship_reviews[0].to).toBe("GOV-001");

@@ -2,6 +2,7 @@ import { corroborationLabel, sourceSupportLabel, validationStatusLabel } from ".
 import { decisionsById, ontology, sourcesById } from "./ontology";
 import type { IntentRoadmap } from "./types";
 import { NSF_ATTRIBUTION } from "./attribution";
+import { CANONICAL_SITE_URL } from "./site";
 
 export interface RoadmapExportContext {
   roadmap: IntentRoadmap;
@@ -42,6 +43,8 @@ const secondaryLines = (heading: string, items: IntentRoadmap["next"]) => [
 export function buildRoadmapMarkdown({ roadmap, observations, generatedAt = new Date() }: RoadmapExportContext) {
   const lines = [
     "# MS-CC Institutional AI Decision Navigator",
+    "",
+    `Resource: ${CANONICAL_SITE_URL}`,
     "",
     `Generated: ${new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(generatedAt)}`,
     "",
