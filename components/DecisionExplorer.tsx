@@ -36,6 +36,10 @@ export function DecisionExplorer() {
         <h1>Explore institutional AI decisions</h1>
         <p className="lede">Choose a topic or search for something your institution is working through.</p>
       </header>
+      <aside className="explorer-guide" aria-label="Guided navigation">
+        <p><strong>Not sure what matters most for your institution?</strong></p>
+        <Link className="text-link" href="/?intent=getting-started">Guide me through it →</Link>
+      </aside>
       <section className="explorer-controls" aria-label="Search and filter decisions">
         <label className="search-field">Search decisions or recommended actions
           <input type="search" value={filters.query} onChange={(event) => setFilter("query", event.target.value)} placeholder={'Try "AI policy," "student data," "GPUs," or "vendor review"'} />
@@ -61,7 +65,16 @@ export function DecisionExplorer() {
             <Link className="detail-link" href={`/decisions/${decision.id}`}>View decision guidance →</Link>
           </article>
         ))}
-        {decisions.length === 0 && <p>No guidance matches your current search and topic filters.</p>}
+        {decisions.length === 0 && (
+          <section className="explorer-empty">
+            <h2>We couldn&apos;t find a close match.</h2>
+            <p>Try a broader term, browse all topics, or use the guided navigator.</p>
+            <div>
+              <button className="secondary-button" onClick={() => setFilters(emptyExplorerFilters)}>Browse all topics</button>
+              <Link className="text-link" href="/?intent=getting-started">Use the guided navigator →</Link>
+            </div>
+          </section>
+        )}
       </section>
     </main>
   );

@@ -1105,6 +1105,8 @@ footer a {
 /* Explorer */
 .explorer-page { padding-bottom: 80px; }
 .explorer-page > header { max-width: 900px; padding: 70px 0 42px; }
+.explorer-guide { align-items: center; border-top: 1px solid var(--line); display: flex; justify-content: space-between; margin-bottom: 24px; padding: 18px 0; }
+.explorer-guide p { color: var(--muted); margin: 0; }
 .explorer-controls { background: var(--white); border: 1px solid var(--line); display: grid; gap: 16px; grid-template-columns: repeat(4, 1fr); padding: 24px; }
 .explorer-controls label { display: grid; font-size: 12px; font-weight: 700; gap: 7px; }
 .explorer-controls .search-field { grid-column: 1 / -1; }
@@ -1121,6 +1123,14 @@ footer a {
 .explorer-results dl div { border-top: 1px solid var(--line); display: grid; gap: 12px; grid-template-columns: 145px 1fr; padding-top: 7px; }
 .explorer-results dt { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; }
 .explorer-results dd { font-size: 13px; margin: 0; }
+.explorer-empty { background: var(--white); border: 1px solid var(--line); grid-column: 1 / -1; padding: 30px; }
+.explorer-empty h2 { margin-top: 0; }
+.explorer-empty p { color: var(--muted); }
+.explorer-empty > div { align-items: center; display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px; }
+.decision-guide-cta { align-items: center; border-bottom: 1px solid var(--line); display: flex; gap: 32px; justify-content: space-between; padding: 26px 0; }
+.decision-guide-cta > div { max-width: 760px; }
+.decision-guide-cta p { margin: 4px 0; }
+.decision-guide-cta > div > p:last-child { color: var(--muted); }
 .detail-backlinks { display: flex; flex-wrap: wrap; gap: 24px; }
 
 /* Pilot validation */
@@ -1182,6 +1192,8 @@ textarea:focus-visible { outline: 3px solid #8db7a4; outline-offset: 3px; }
   .methodology-positioning { grid-template-columns: 1fr; }
   .explorer-controls { grid-template-columns: 1fr; }
   .explorer-controls .search-field { grid-column: auto; }
+  .explorer-guide,
+  .decision-guide-cta { align-items: flex-start; flex-direction: column; }
   .validator-context { grid-template-columns: 1fr; }
   .review-actions { align-items: stretch; flex-direction: column; }
   .review-actions button { min-height: 44px; width: 100%; }

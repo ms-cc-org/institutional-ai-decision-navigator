@@ -4,6 +4,8 @@ import { EvidenceDetail } from "@/components/EvidenceDisclosure";
 import { RelationshipProvenanceNote } from "@/components/RelationshipProvenanceNote";
 import { WorkingGroupReview } from "@/components/WorkingGroupReview";
 import { validationStatusLabel } from "@/lib/evidence-presentation";
+import { guidedPathForDecision, mapDecisionToIntent } from "@/lib/decision-intent";
+import { intentsById } from "@/lib/intents";
 import { decisionsById, ontology } from "@/lib/ontology";
 
 export function generateStaticParams() {
@@ -42,6 +44,8 @@ export default async function DecisionDetail({ params }: { params: Promise<{ id:
     ["People to involve", decision.stakeholders],
     ["Expected output", decision.decision_output],
   ];
+  const guidedMapping = mapDecisionToIntent(decision);
+  const guidedIntent = intentsById.get(guidedMapping.intentId)!;
 
   return (
     <main className="detail-page">
@@ -56,6 +60,11 @@ export default async function DecisionDetail({ params }: { params: Promise<{ id:
         <p>{decision.recommendation_logic}</p>
         <p className="risk">Expected result: {decision.decision_output}</p>
       </section>
+
+      <aside className="decision-guide-cta">
+        <div><p className="eyebrow">Personalize this guidance</p><p>Answer a few questions through the <strong>{guidedIntent.title}</strong> pathway to see where this decision fits alongside your institution&apos;s other priorities.</p></div>
+        <Link className="text-link" href={guidedPathForDecision(decision)}>Help me prioritize this →</Link>
+      </aside>
 
       <section className="detail-grid user-detail-grid">
         {userRows.map(([label, value]) => <div key={label}><h2>{label}</h2><p>{value}</p></div>)}

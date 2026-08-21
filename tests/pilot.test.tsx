@@ -49,8 +49,20 @@ describe("MS-CC pilot shell", () => {
     expect(source).toContain("Search decisions or recommended actions");
     expect(source).toContain('Try "AI policy," "student data," "GPUs," or "vendor review"');
     expect(source).toContain("All topics");
+    expect(source).toContain('href="/?intent=getting-started"');
+    expect(source).toContain("Guide me through it →");
+    expect(source).toContain("We couldn&apos;t find a close match.");
     expect(source).not.toContain("Search decision text or expected output");
     expect(source).not.toContain("Explore the decision model");
+  });
+
+  it("connects decision details to a contextual guided pathway", () => {
+    const detail = readFileSync("app/decisions/[id]/page.tsx", "utf8");
+    const navigator = readFileSync("components/IntentNavigator.tsx", "utf8");
+    expect(detail).toContain("Help me prioritize this →");
+    expect(detail).toContain("guidedPathForDecision(decision)");
+    expect(navigator).toContain("You&apos;re exploring:");
+    expect(navigator).toContain('searchParams.get("fromDecision")');
   });
 
   it("keeps GitHub Pages deployment paths repository-independent", () => {

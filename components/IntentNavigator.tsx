@@ -6,6 +6,7 @@ import Link from "next/link";
 import { intents, intentsById } from "@/lib/intents";
 import type { IntentAnswers, IntentId } from "@/lib/types";
 import { createNavigatorSession } from "@/lib/session";
+import { decisionsById } from "@/lib/ontology";
 import { ProfileForm } from "./ProfileForm";
 import { SituationInterpreter } from "./SituationInterpreter";
 
@@ -39,6 +40,7 @@ export function IntentNavigator() {
   const searchParams = new URLSearchParams(locationSearch);
   const locationIntent = searchParams.get("intent") ?? "";
   const locationIntentId = intentsById.has(locationIntent as IntentId) ? locationIntent as IntentId : null;
+  const exploredDecision = decisionsById.get(searchParams.get("fromDecision") ?? "");
   const intentId = selectedIntentId ?? locationIntentId;
   const [questionIndex, setQuestionIndex] = useState(0);
   const [draftAnswers, setDraftAnswers] = useState<IntentAnswers>({});
@@ -102,6 +104,7 @@ export function IntentNavigator() {
           <button className="text-button" onClick={changeGoal}>← Change goal</button>
           <p className="eyebrow">Your path</p>
           <h1>{intent.title}</h1>
+          {exploredDecision && <p><strong>You&apos;re exploring:</strong> {exploredDecision.question}</p>}
           <p className="lede">Fourteen short questions about observable institutional conditions will identify three strategic starting points.</p>
         </section>
         <section className="form-shell"><ProfileForm /></section>
@@ -128,6 +131,7 @@ export function IntentNavigator() {
         <button className="text-button" onClick={changeGoal}>← Change goal</button>
         <p className="eyebrow">Your path</p>
         <h1>{intent.title}</h1>
+        {exploredDecision && <p><strong>You&apos;re exploring:</strong> {exploredDecision.question}</p>}
         <p>{intent.description}</p>
       </section>
       <section className="question-panel">
