@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { CANONICAL_REPOSITORY_URL } from "@/lib/site";
+import { institutionConfig } from "@/config/institution";
+import { versionInfo } from "@/lib/version";
 
 const auditUrl = `${CANONICAL_REPOSITORY_URL}/blob/main/docs/EVIDENCE_AUDIT_v0.3.3.md`;
 
@@ -7,7 +9,7 @@ export default function MethodologyPage() {
   return (
     <main className="methodology-page">
       <header>
-        <p className="eyebrow">About the MS-CC pilot · Ontology v0.3.3</p>
+        <p className="eyebrow">About the {institutionConfig.shortName} deployment · MS-CC core ontology v{versionInfo.coreOntology}</p>
         <h1>An evidence-traceable institutional AI decision-support tool.</h1>
         <p className="lede">The navigator helps institutions identify decisions, sequence action, and inspect the evidence and synthesis behind the model. It does not assign an overall readiness or maturity score.</p>
       </header>
@@ -67,7 +69,7 @@ export default function MethodologyPage() {
         </div>
       </section>
 
-      <section className="methodology-audit"><p className="eyebrow">Practitioner validation</p><h2>MS-CC is inviting working-group review.</h2><p>Decision detail pages include an optional, collapsed review form. Feedback is saved only on the reviewer’s device and can be exported as JSON for manual sharing. It is not centrally submitted.</p></section>
+      <section className="methodology-audit"><p className="eyebrow">Practitioner validation</p><h2>{institutionConfig.shortName} is inviting working-group review.</h2><p>Decision detail pages include an optional, collapsed review form. Feedback is saved only on the reviewer’s device and can be exported as JSON for manual sharing. It is not centrally submitted.</p></section>
 
       <section className="methodology-audit"><p className="eyebrow">Open architecture question</p><h2>Review the RAG lifecycle before adding ontology nodes.</h2><p>Existing decisions address data storage, transfer, retrieval and access, logging, retention, architecture, and security controls. A future human review should assess whether those decisions adequately represent the retrieval-augmented generation lifecycle; v0.3.3 does not add a RAG-specific decision.</p></section>
 

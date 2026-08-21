@@ -61,7 +61,7 @@ describe("MS-CC pilot shell", () => {
   it("uses evidence-honest landing-page positioning", () => {
     const source = readFileSync("components/IntentNavigator.tsx", "utf8");
     expect(source).toContain("Built for decisions, not another maturity score.");
-    expect(source).toContain("Practitioner validation of the decision model and sequencing is ongoing.");
+    expect(source).toContain("Practitioner validation of the core decision model and sequencing is ongoing.");
     expect(source).toContain("researcher synthesis");
     expect(source).toContain("supports institutional judgment rather than replacing it");
     expect(source).toContain("defined decision rules—not open-ended AI generation");
@@ -95,14 +95,17 @@ describe("MS-CC pilot shell", () => {
   });
 
   it("keeps GitHub Pages deployment paths repository-independent", () => {
-    const config = readFileSync("next.config.ts", "utf8");
+    const nextConfig = readFileSync("next.config.ts", "utf8");
     const workflow = readFileSync(".github/workflows/deploy-pages.yml", "utf8");
     const header = readFileSync("components/SiteHeader.tsx", "utf8");
     const footer = readFileSync("components/SiteFooter.tsx", "utf8");
-    expect(config).toContain('basePath: process.env.PAGES_BASE_PATH ?? ""');
+    const institutionConfigSource = readFileSync("config/institution.ts", "utf8");
+    expect(nextConfig).toContain('basePath: process.env.PAGES_BASE_PATH ?? ""');
     expect(workflow).toContain("PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}");
-    expect(header).toContain("`${basePath}/brand/mscc-logo-horizontal.png`");
-    expect(footer).toContain("`${basePath}/brand/mscc-logo-vertical.png`");
+    expect(header).toContain("assetUrl(config.logoHorizontal)");
+    expect(footer).toContain("assetUrl(config.logoVertical)");
+    expect(institutionConfigSource).toContain('logoHorizontal: "/brand/mscc-logo-horizontal.png"');
+    expect(institutionConfigSource).toContain('logoVertical: "/brand/mscc-logo-vertical.png"');
   });
 
   it("contains no former personal repository URL in production-facing files", () => {
@@ -112,6 +115,8 @@ describe("MS-CC pilot shell", () => {
       "app/methodology/page.tsx",
       "lib/roadmap-export.ts",
       "lib/site.ts",
+      "lib/core.ts",
+      "config/institution.ts",
       ".github/workflows/deploy-pages.yml",
     ];
     const source = files.map((file) => readFileSync(file, "utf8")).join("\n");

@@ -1,4 +1,5 @@
 import type { DecisionFeedback, RelationshipFeedback, ValidatorProfile } from "./types";
+import { institutionConfig } from "../config/institution";
 
 export const VALIDATOR_PROFILE_KEY = "mscc-pilot-validator-profile";
 export const DECISION_FEEDBACK_KEY = "mscc-pilot-decision-feedback";
@@ -50,9 +51,15 @@ export function buildValidationExport(
   ontologyVersion: string,
   generatedAt = new Date(),
 ) {
+  const pilotName = institutionConfig.deploymentMode === "mscc_reference"
+    ? `${institutionConfig.shortName} ${institutionConfig.productName}`
+    : institutionConfig.productName;
   return {
     schema_version: 1,
-    pilot: "MS-CC Institutional AI Decision Navigator",
+    pilot: pilotName,
+    deployment_mode: institutionConfig.deploymentMode,
+    institution: institutionConfig.institutionName,
+    local_config_version: institutionConfig.configVersion,
     ontology_version: ontologyVersion,
     exported_at: generatedAt.toISOString(),
     storage_notice: "Collected and exported from this device; not centrally submitted.",

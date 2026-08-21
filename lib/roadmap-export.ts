@@ -3,11 +3,31 @@ import { decisionsById, ontology, sourcesById } from "./ontology";
 import type { IntentRoadmap } from "./types";
 import { NSF_ATTRIBUTION } from "./attribution";
 import { CANONICAL_SITE_URL } from "./site";
+import { institutionConfig } from "../config/institution";
 
 export interface RoadmapExportContext {
   roadmap: IntentRoadmap;
   observations: string[];
   generatedAt?: Date;
+}
+
+export const ROADMAP_EXPORT_TITLE = institutionConfig.deploymentMode === "mscc_reference"
+  ? `${institutionConfig.shortName} ${institutionConfig.productName}`
+  : institutionConfig.productName;
+
+export function formatRoadmapDate(date: Date) {
+  return new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(date);
+}
+
+export function roadmapMarkdownFilename(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `mscc-ai-decision-roadmap-${year}-${month}-${day}.md`;
+}
+
+export function printRoadmap(browserWindow: Pick<Window, "print">) {
+  browserWindow.print();
 }
 
 const recommendationLines = (items: IntentRoadmap["primary"]) => items.flatMap((item, index) => {
@@ -24,10 +44,10 @@ const recommendationLines = (items: IntentRoadmap["primary"]) => items.flatMap((
     `   - Why it surfaced: ${item.reason}`,
     `   - Recommended action: ${item.recommendedAction}`,
     ...(unlocks.length ? [`   - What it unlocks: ${unlocks.join("; ")}`] : []),
-    `   - Evidence summary: ${profile.evidence_breadth} source${profile.evidence_breadth === 1 ? "" : "s"}${sourceNames.length ? ` — ${sourceNames.join("; ")}` : ""}`,
+    `   - Evidence summary: ${profile.evidence_breadth} source${profile.evidence_breadth === 1 ? "" : "s"}; ${validationStatusLabel(profile.validation_status)}`,
     `   - Source support: ${sourceSupportLabel(profile.source_support)}`,
     `   - Independent corroboration: ${corroborationLabel(profile.corroboration)}`,
-    `   - Validation status: ${validationStatusLabel(profile.validation_status)}`,
+    ...(sourceNames.length ? [`   - Key evidence sources: ${sourceNames.join("; ")}`] : []),
   ];
 });
 
@@ -42,11 +62,11 @@ const secondaryLines = (heading: string, items: IntentRoadmap["next"]) => [
 
 export function buildRoadmapMarkdown({ roadmap, observations, generatedAt = new Date() }: RoadmapExportContext) {
   const lines = [
-    "# MS-CC Institutional AI Decision Navigator",
+    `# ${ROADMAP_EXPORT_TITLE}`,
     "",
     `Resource: ${CANONICAL_SITE_URL}`,
     "",
-    `Generated: ${new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(generatedAt)}`,
+    `Generated: ${formatRoadmapDate(generatedAt)}`,
     "",
     "## Institutional context / What we heard",
     "",

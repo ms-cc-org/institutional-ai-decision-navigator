@@ -1,4 +1,7 @@
-export const PRODUCT_TITLE = "Institutional AI Decision Navigator";
-export const PRODUCT_DESCRIPTION = "An MS-CC evidence-traceable decision-support resource for navigating institutional AI adoption.";
-export const CANONICAL_REPOSITORY_URL = "https://github.com/ms-cc-org/institutional-ai-decision-navigator";
-export const CANONICAL_SITE_URL = "https://ms-cc-org.github.io/institutional-ai-decision-navigator/";
+import { institutionConfig } from "../config/institution";
+import { CORE_REPOSITORY_URL } from "./core";
+
+export const PRODUCT_TITLE = institutionConfig.productName;
+export const PRODUCT_DESCRIPTION = institutionConfig.aboutText;
+export const CANONICAL_REPOSITORY_URL = CORE_REPOSITORY_URL;
+export const CANONICAL_SITE_URL = institutionConfig.homepageUrl;

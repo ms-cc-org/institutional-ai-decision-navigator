@@ -2,6 +2,7 @@
 
 import { useMemo, useSyncExternalStore } from "react";
 import type { Decision, DecisionFeedback, Relationship, RelationshipFeedback, ValidatorProfile } from "@/lib/types";
+import { institutionConfig } from "@/config/institution";
 import { ontology } from "@/lib/ontology";
 import {
   buildValidationExport, DECISION_FEEDBACK_KEY, parseFeedbackCollection,
@@ -53,7 +54,7 @@ export function WorkingGroupReview({ decision, prerequisiteRelationships }: { de
   return (
     <details className="working-group-review">
       <summary>Help validate this decision</summary>
-      <div className="validation-intro"><p className="eyebrow">MS-CC pilot working-group review</p><h2>Practitioner feedback</h2><p>Your responses are <strong>saved on this device</strong>. They are not centrally submitted. Export the file when you are ready to share it with MS-CC.</p></div>
+      <div className="validation-intro"><p className="eyebrow">{institutionConfig.shortName} working-group review</p><h2>Practitioner feedback</h2><p>Your responses are <strong>saved on this device</strong>. They are not centrally submitted. Export the file when you are ready to share it with {institutionConfig.shortName}.</p></div>
       <fieldset className="validator-context"><legend>Optional validator context</legend>
         <label>Role<select value={state.profile.role} onChange={(event) => updateProfile("role", event.target.value)}>{roles.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
         <label>Institution type<select value={state.profile.institutionType} onChange={(event) => updateProfile("institutionType", event.target.value)}><option value="">Prefer not to say</option><option value="community_college">Community college</option><option value="liberal_arts">Liberal arts college</option><option value="masters">Master’s institution</option><option value="research_university">Research university</option><option value="system">University system</option></select></label>

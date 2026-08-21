@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "institution_name": "Example Valley College",
+  "items": [
+    {
+      "id": "LOCAL-001",
+      "origin": "institution_local",
+      "decision_ids": ["DAT-002"],
+      "title": "Example Valley Data Classification and Handling Policy",
+      "publisher": "Example Valley College",
+      "url": "https://example.edu/policies/data-handling",
+      "guidance_type": "local_policy",
+      "notes": "Use the institution's restricted-data rules when evaluating external AI services.",
+      "localAction": "Confirm the proposed tool and data category with Information Security before use.",
+      "localOwner": "Office of Information Security",
+      "localContact": "security@example.edu"
+    },
+    {
+      "id": "LOCAL-002",
+      "origin": "institution_local",
+      "decision_ids": ["PRO-002", "POL-009"],
+      "title": "Example Valley Technology Procurement Guide",
+      "publisher": "Example Valley College",
+      "url": "https://example.edu/procurement/technology-review",
+      "guidance_type": "local_procedure",
+      "notes": "Local procurement review is required before a unit signs or renews an AI service agreement.",
+      "localPolicyReferences": [
+        {
+          "label": "Request a technology review",
+          "url": "https://example.edu/procurement/request-review"
+        }
+      ]
+    }
+  ]
+}

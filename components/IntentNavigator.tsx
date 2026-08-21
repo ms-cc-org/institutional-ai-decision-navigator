@@ -10,6 +10,7 @@ import { decisionsById } from "@/lib/ontology";
 import { landingExampleDecisions, landingStats } from "@/lib/landing";
 import { ProfileForm } from "./ProfileForm";
 import { SituationInterpreter } from "./SituationInterpreter";
+import { institutionConfig } from "@/config/institution";
 
 const subscribeToStorage = (onChange: () => void) => {
   window.addEventListener("storage", onChange);
@@ -79,7 +80,7 @@ export function IntentNavigator() {
           <h1>Know which AI decisions matter for your institution.</h1>
           <div className="landing-introduction">
             <p>There is already extensive guidance on responsible and effective AI adoption. The harder problem is knowing what applies to your institution and what to address first.</p>
-            <p>The Institutional AI Decision Navigator synthesizes that guidance into a structured decision model. Use it to identify the decisions that matter for your situation, understand which should receive attention first, and inspect the evidence behind each recommendation.</p>
+            <p>{institutionConfig.productName} synthesizes that guidance into a structured decision model. Use it to identify the decisions that matter for your situation, understand which should receive attention first, and inspect the evidence behind each recommendation.</p>
           </div>
           <p className="trust-calibration">The Navigator supports institutional judgment rather than replacing it. Its recommendations follow defined decision rules—not open-ended AI generation—and their reasoning and evidence can be inspected.</p>
         </section>
@@ -151,7 +152,7 @@ export function IntentNavigator() {
             <article><p className="eyebrow">Contextual</p><h3>Your situation changes the path.</h3><p>Institutional goals, user context, applicability rules, and decision dependencies affect which decisions surface and how they are prioritized.</p></article>
             <article><p className="eyebrow">Traceable</p><h3>The evidence remains inspectable.</h3><p>Decision detail pages distinguish recorded support as direct, corroborating, contextual, or researcher synthesis, alongside corroboration and validation status.</p></article>
           </div>
-          <p className="pilot-note"><strong>This is an MS-CC pilot.</strong> Practitioner validation of the decision model and sequencing is ongoing. Decision detail pages expose supporting evidence and documented synthesis where available, so users can inspect the model&apos;s reasoning rather than rely on an opaque score.</p>
+          <p className="pilot-note"><strong>{institutionConfig.deploymentMode === "mscc_reference" ? `This is an ${institutionConfig.shortName} pilot.` : `${institutionConfig.institutionName} has configured this deployment from the MS-CC core.`}</strong> Practitioner validation of the core decision model and sequencing is ongoing. Decision detail pages expose supporting evidence and documented synthesis where available, so users can inspect the model&apos;s reasoning rather than rely on an opaque score.</p>
         </section>
       </main>
     );

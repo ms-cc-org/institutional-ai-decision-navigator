@@ -12,6 +12,7 @@ import {
   validationStatusLabel,
 } from "../lib/evidence-presentation";
 import type { Decision } from "../lib/types";
+import { CORE_ORIGIN_LABEL } from "../lib/core";
 
 export function EvidenceSummary({ decision }: { decision: Decision }) {
   const profile = decision.evidence_profile;
@@ -46,7 +47,7 @@ export function EvidenceDetail({ decision }: { decision: Decision }) {
     <section className="evidence-section" aria-labelledby="evidence-heading">
       <div className="evidence-heading-row">
         <div>
-          <p className="eyebrow">Evidence profile</p>
+          <p className="eyebrow">{CORE_ORIGIN_LABEL} evidence profile</p>
           <h2 id="evidence-heading">Evidence behind this decision</h2>
         </div>
       </div>

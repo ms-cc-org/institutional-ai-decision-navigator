@@ -1,19 +1,35 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { evaluateIntent } from "@/lib/intent-engine";
 import { intentsById } from "@/lib/intents";
 import { decisionsById, ontology } from "@/lib/ontology";
 import { parseDiagnosticState } from "@/lib/diagnostics";
-import { buildRoadmapMarkdown, restartNavigator } from "@/lib/roadmap-export";
+import {
+  buildRoadmapMarkdown,
+  formatRoadmapDate,
+  printRoadmap,
+  ROADMAP_EXPORT_TITLE,
+  restartNavigator,
+  roadmapMarkdownFilename,
+} from "@/lib/roadmap-export";
+import { NSF_ATTRIBUTION } from "@/lib/attribution";
 import { parseInstitutionProfile, parseNavigatorSession } from "@/lib/session";
 import { parseSituationState } from "@/lib/situation-interpreter";
 import type { IntentRecommendation } from "@/lib/types";
 import { EvidenceSummary } from "./EvidenceDisclosure";
 import { FollowUpSection } from "./FollowUpSection";
 import { RelationshipProvenanceNote } from "./RelationshipProvenanceNote";
+import { RoadmapExportActions } from "./RoadmapExportActions";
+import { institutionConfig } from "@/config/institution";
+
+const basePath = process.env.PAGES_BASE_PATH ?? "";
+const printLogoUrl = institutionConfig.logoHorizontal.startsWith("http")
+  ? institutionConfig.logoHorizontal
+  : `${basePath}${institutionConfig.logoHorizontal}`;
 
 const subscribeToStorage = (onChange: () => void) => {
   window.addEventListener("storage", onChange);
@@ -63,6 +79,10 @@ function RecommendationBlock({ item, number }: { item: IntentRecommendation; num
             ) : <p>No prerequisite decision is defined for this item.</p>}
           </details>
         </div>
+        <div className="print-only print-evidence-summary" aria-label="Concise evidence summary">
+          <h3>Evidence summary</h3>
+          <EvidenceSummary decision={decision} />
+        </div>
         <Link className="detail-link" href={`/decisions/${item.decisionId}`}>Explore this decision →</Link>
       </div>
     </article>
@@ -76,6 +96,7 @@ export function FocusedRoadmap() {
   const rawSituation = useSyncExternalStore(subscribeToStorage, getSituation, getServerValue);
   const [confirmingRestart, setConfirmingRestart] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
+  const [generatedAt] = useState(() => new Date());
   const router = useRouter();
   const parsed = useMemo(() => {
     if (rawSession === undefined) return undefined;
@@ -101,20 +122,20 @@ export function FocusedRoadmap() {
     router.push("/");
   };
   const observations = session.entryMode === "situation" ? situation?.observations ?? [] : diagnostics?.observations ?? [];
-  const markdown = buildRoadmapMarkdown({ roadmap, observations });
+  const markdown = buildRoadmapMarkdown({ roadmap, observations, generatedAt });
   const copySummary = async () => {
     try {
       await navigator.clipboard.writeText(markdown);
       setCopyStatus("Summary copied.");
     } catch {
-      setCopyStatus("Copy failed. Use Export as Markdown instead.");
+      setCopyStatus("Copy failed. Use Download Markdown instead.");
     }
   };
   const exportMarkdown = () => {
     const url = URL.createObjectURL(new Blob([markdown], { type: "text/markdown;charset=utf-8" }));
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = "institutional-ai-decision-roadmap.md";
+    anchor.download = roadmapMarkdownFilename(generatedAt);
     anchor.style.display = "none";
     document.body.appendChild(anchor);
     anchor.click();
@@ -124,24 +145,30 @@ export function FocusedRoadmap() {
 
   return (
     <>
+      <section className="print-only print-roadmap-header" aria-label="Printed roadmap heading">
+        <Image src={printLogoUrl} alt={institutionConfig.institutionName} width={institutionConfig.logoHorizontalWidth} height={institutionConfig.logoHorizontalHeight} unoptimized />
+        <h1>{ROADMAP_EXPORT_TITLE}</h1>
+        <p>Generated {formatRoadmapDate(generatedAt)}</p>
+      </section>
       <section className="results-head">
         <div className="current-path"><span>Current path</span><strong>{intent.title}</strong></div>
         <h1>{session.intentId === "getting-started" ? "Your starting point" : session.entryMode === "situation" ? "Based on what you described, resolve these decisions first." : "Based on what you’ve told us, resolve these decisions first."}</h1>
         <p>{roadmap.primary.length} focused priorit{roadmap.primary.length === 1 ? "y" : "ies"}, sequenced from your answers and the decision dependencies behind them.</p>
-        <nav className="result-actions" aria-label="Roadmap actions">
-          <Link href={session.entryMode === "situation" ? "/?mode=ask" : `/?intent=${session.intentId}`}>{session.entryMode === "situation" ? "Revise description" : "Change an answer"}</Link>
-          <Link href="/">Change goal</Link>
-          <button onClick={copySummary}>Copy summary</button>
-          <button onClick={exportMarkdown}>Export as Markdown</button>
-          {!confirmingRestart ? <button onClick={() => setConfirmingRestart(true)}>Restart</button> : (
-            <span className="restart-confirmation">
-              <span>Clear saved answers and roadmap?</span>
-              <button onClick={restart}>Clear and restart</button>
-              <button onClick={() => setConfirmingRestart(false)}>Keep roadmap</button>
-            </span>
-          )}
-        </nav>
-        <p className="action-status" aria-live="polite">{copyStatus}</p>
+        <div className="result-actions screen-only">
+          <nav className="roadmap-edit-actions" aria-label="Edit roadmap">
+            <Link href={session.entryMode === "situation" ? "/?mode=ask" : `/?intent=${session.intentId}`}>{session.entryMode === "situation" ? "Revise description" : "Change an answer"}</Link>
+            <Link href="/">Change goal</Link>
+            {!confirmingRestart ? <button onClick={() => setConfirmingRestart(true)}>Restart</button> : (
+              <span className="restart-confirmation">
+                <span>Clear saved answers and roadmap?</span>
+                <button onClick={restart}>Clear and restart</button>
+                <button onClick={() => setConfirmingRestart(false)}>Keep roadmap</button>
+              </span>
+            )}
+          </nav>
+          <RoadmapExportActions onCopy={copySummary} onDownload={exportMarkdown} onPrint={() => printRoadmap(window)} />
+        </div>
+        <p className="action-status screen-only" aria-live="polite">{copyStatus}</p>
       </section>
 
       {observations.length ? (
@@ -150,8 +177,15 @@ export function FocusedRoadmap() {
           <h2 id="heard-heading">What we heard</h2>
           <ul>{observations.map((observation) => <li key={observation}>{observation}</li>)}</ul>
         </section>
-      ) : null}
+      ) : (
+        <section className="heard-summary print-only" aria-labelledby="heard-heading-empty">
+          <p className="eyebrow">Institutional context</p>
+          <h2 id="heard-heading-empty">What we heard</h2>
+          <p>No diagnostic context was saved for this pathway.</p>
+        </section>
+      )}
 
+      <h2 className="print-only print-section-heading">Primary priorities</h2>
       <section className="priority-list" aria-label="Priority decisions">
         {roadmap.primary.map((item, index) => <RecommendationBlock key={item.decisionId} item={item} number={index + 1} />)}
       </section>
@@ -168,6 +202,10 @@ export function FocusedRoadmap() {
 
       <FollowUpSection heading="Coming up next" items={roadmap.next} />
       <FollowUpSection heading="Only if this applies" items={roadmap.conditional} conditional />
+
+      <section className="print-only print-attribution" aria-label="Required attribution">
+        {NSF_ATTRIBUTION.map((line) => <p key={line}>{line}</p>)}
+      </section>
     </>
   );
 }

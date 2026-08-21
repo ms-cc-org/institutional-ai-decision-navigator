@@ -22,6 +22,10 @@ Working-group review is optional and stored only on the current device. Reviewer
 
 See [docs/architecture.md](docs/architecture.md) for the complete data flow and thresholds, [docs/EVIDENCE_AUDIT_v0.3.3.md](docs/EVIDENCE_AUDIT_v0.3.3.md) for the release audit, and [docs/FUTURE_LITERATURE_BACKLOG.md](docs/FUTURE_LITERATURE_BACKLOG.md) for unverified review candidates.
 
+## Use the Navigator at your institution
+
+Colleges and universities may fork this reference implementation for internal use. Institution identity and local guidance live outside the MS-CC core ontology so local policies remain distinguishable from shared evidence and future upstream updates remain reviewable. See [docs/INSTITUTIONAL_DEPLOYMENT.md](docs/INSTITUTIONAL_DEPLOYMENT.md) for configuration, branding, local-policy, testing, GitHub Pages, custom-domain, and upstream-update instructions.
+
 ## Run locally
 
 Requires a current Node.js LTS release.

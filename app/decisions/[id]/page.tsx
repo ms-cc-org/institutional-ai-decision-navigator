@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 import { EvidenceDetail } from "@/components/EvidenceDisclosure";
 import { RelationshipProvenanceNote } from "@/components/RelationshipProvenanceNote";
 import { WorkingGroupReview } from "@/components/WorkingGroupReview";
+import { LocalGuidanceSection } from "@/components/LocalGuidanceSection";
 import { validationStatusLabel } from "@/lib/evidence-presentation";
 import { guidedPathForDecision, mapDecisionToIntent } from "@/lib/decision-intent";
 import { intentsById } from "@/lib/intents";
 import { decisionsById, ontology } from "@/lib/ontology";
+import { localGuidanceForDecision } from "@/lib/local-guidance";
 
 export function generateStaticParams() {
   return ontology.decisions.map((decision) => ({ id: decision.id }));
@@ -46,6 +48,7 @@ export default async function DecisionDetail({ params }: { params: Promise<{ id:
   ];
   const guidedMapping = mapDecisionToIntent(decision);
   const guidedIntent = intentsById.get(guidedMapping.intentId)!;
+  const localGuidance = localGuidanceForDecision(id);
 
   return (
     <main className="detail-page">
@@ -71,6 +74,8 @@ export default async function DecisionDetail({ params }: { params: Promise<{ id:
       </section>
 
       <EvidenceDetail decision={decision} />
+
+      <LocalGuidanceSection items={localGuidance} />
 
       <section className="relations">
         <div>

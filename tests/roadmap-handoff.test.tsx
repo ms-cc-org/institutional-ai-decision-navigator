@@ -1,10 +1,17 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { FollowUpSection } from "../components/FollowUpSection";
+import { RoadmapExportActions } from "../components/RoadmapExportActions";
 import { createDiagnosticState } from "../lib/diagnostics";
 import { evaluateIntent } from "../lib/intent-engine";
-import { buildRoadmapMarkdown, restartNavigator } from "../lib/roadmap-export";
+import {
+  buildRoadmapMarkdown,
+  printRoadmap,
+  restartNavigator,
+  roadmapMarkdownFilename,
+} from "../lib/roadmap-export";
 import { CANONICAL_SITE_URL } from "../lib/site";
+import { NSF_ATTRIBUTION } from "../lib/attribution";
 import type { DiagnosticAnswers } from "../lib/types";
 
 const answers: DiagnosticAnswers = {
@@ -27,13 +34,32 @@ describe("roadmap handoff", () => {
     expect(markdown).toContain(roadmap.primary[0].plainLanguageTitle);
     expect(markdown).toContain("Source support:");
     expect(markdown).toContain("Independent corroboration:");
-    expect(markdown).toContain("Validation status: Not yet practitioner validated");
+    expect(markdown).toContain("Evidence summary:");
+    expect(markdown).toContain("Not yet practitioner validated");
+    expect(markdown).toContain("Key evidence sources:");
     expect(markdown).toContain("## Coming up next");
     expect(markdown).toContain("## Only if this applies");
     expect(markdown).toContain("## Your next 90 days");
-    expect(markdown).toContain("© 2026 MS-CC, in partnership with Internet2.");
-    expect(markdown).toContain("National Science Foundation under Grant #2234326.");
+    NSF_ATTRIBUTION.forEach((line) => expect(markdown).toContain(line));
     expect(markdown).not.toMatch(/\b(?:GOV|DAT|TL)-\d{3}\b/);
+  });
+
+  it("renders accessible copy, Markdown, and native print actions", () => {
+    const html = renderToStaticMarkup(
+      <RoadmapExportActions onCopy={() => undefined} onDownload={() => undefined} onPrint={() => undefined} />,
+    );
+    expect(html).toContain("Copy summary");
+    expect(html).toContain("Download Markdown");
+    expect(html).toContain("Print / Save as PDF");
+    expect(html).toContain("aria-label=\"Print roadmap or save as PDF\"");
+    expect(html).toContain("screen-only");
+  });
+
+  it("uses native printing and a date-stamped Markdown filename", () => {
+    const print = vi.fn();
+    printRoadmap({ print });
+    expect(print).toHaveBeenCalledOnce();
+    expect(roadmapMarkdownFilename(new Date(2026, 7, 21))).toBe("mscc-ai-decision-roadmap-2026-08-21.md");
   });
 
   it("renders next and conditional recommendations as separate groups", () => {

@@ -367,6 +367,23 @@
   margin-top: 28px;
 }
 
+.roadmap-edit-actions,
+.roadmap-export-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+}
+
+.roadmap-export-actions {
+  border-left: 1px solid var(--line);
+  padding-left: 22px;
+}
+
+.print-only {
+  display: none;
+}
+
 .restart-confirmation {
   align-items: center;
   background: var(--white);
@@ -581,6 +598,19 @@
   .result-actions {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .roadmap-edit-actions,
+  .roadmap-export-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .roadmap-export-actions {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding-left: 0;
+    padding-top: 18px;
   }
 
   .restart-confirmation {
@@ -840,6 +870,84 @@ footer a {
   margin: 3px 0 0;
 }
 
+.local-guidance-section {
+  border-top: 2px solid var(--green);
+  margin-top: 52px;
+  padding-top: 24px;
+}
+
+.local-guidance-section > h2 {
+  font-family: Georgia, serif;
+  font-size: 32px;
+  font-weight: 400;
+  margin: 6px 0 10px;
+}
+
+.local-guidance-section > p:not(.eyebrow) {
+  color: var(--muted);
+  max-width: 820px;
+}
+
+.local-guidance-list {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 22px;
+}
+
+.local-guidance-list article {
+  background: var(--white);
+  border: 1px solid var(--green);
+  padding: 22px;
+}
+
+.local-guidance-heading {
+  align-items: start;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+}
+
+.local-guidance-heading span,
+.local-guidance-heading b {
+  color: var(--green);
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.local-guidance-heading h3 {
+  font-family: Georgia, serif;
+  font-size: 21px;
+  font-weight: 400;
+  margin: 7px 0 10px;
+}
+
+.local-guidance-list dl div {
+  border-top: 1px solid var(--line);
+  padding: 9px 0;
+}
+
+.local-guidance-list dt {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.local-guidance-list dd {
+  font-size: 13px;
+  margin: 3px 0 0;
+}
+
+.local-origin {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+  margin: 18px 0 0;
+  padding-top: 10px;
+}
+
 .evidence-interpretation-grid {
   display: grid;
   gap: 28px;
@@ -1057,6 +1165,10 @@ footer a {
     flex-direction: column;
   }
 
+  .local-guidance-list {
+    grid-template-columns: 1fr;
+  }
+
   .evidence-source-list,
   .evidence-interpretation-grid,
   .methodology-grid,
@@ -1072,6 +1184,237 @@ footer a {
 
   .methodology-grid > div:nth-child(odd) {
     border-right: 0;
+  }
+}
+
+@media print {
+  @page {
+    margin: 0.65in;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #111 !important;
+    font-size: 10.5pt;
+    margin: 0;
+    print-color-adjust: economy;
+  }
+
+  body {
+    overflow: visible;
+  }
+
+  .site-header,
+  .site-footer,
+  .screen-only,
+  .disclosures,
+  .detail-link,
+  .working-group-review,
+  .review-actions,
+  .validator-context,
+  .decision-validation,
+  .relationship-validation,
+  .explorer-controls,
+  .roadmap-tools,
+  button,
+  input,
+  select,
+  textarea {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  main,
+  .roadmap-page {
+    margin: 0;
+    max-width: none;
+    padding: 0;
+    width: auto;
+  }
+
+  .print-roadmap-header {
+    border-bottom: 2px solid #222;
+    margin-bottom: 22pt;
+    padding-bottom: 16pt;
+  }
+
+  .print-roadmap-header img {
+    display: block;
+    height: auto;
+    margin-bottom: 12pt;
+    max-width: 130px;
+    object-fit: contain;
+    width: auto;
+  }
+
+  .print-roadmap-header h1 {
+    font-size: 24pt;
+    margin: 0 0 5pt;
+  }
+
+  .print-roadmap-header p {
+    color: #333;
+    margin: 0;
+  }
+
+  .results-head {
+    border: 0;
+    padding: 0 0 18pt;
+  }
+
+  .results-head h1 {
+    font-size: 20pt;
+    margin: 8pt 0;
+  }
+
+  .results-head > p,
+  .priority-item .reason,
+  .timeline p,
+  .then-consider a span {
+    color: #222;
+  }
+
+  .heard-summary,
+  .action-callout,
+  .unlocks,
+  .print-evidence-summary,
+  .timeline > div {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .heard-summary {
+    border: 1px solid #777;
+    margin: 0 0 22pt;
+    max-width: none;
+    padding: 14pt 16pt;
+  }
+
+  .print-section-heading {
+    font-family: Georgia, serif;
+    font-size: 18pt;
+    font-weight: 400;
+    margin: 0;
+    padding-top: 6pt;
+  }
+
+  .priority-list {
+    border: 0;
+  }
+
+  .priority-item {
+    break-inside: avoid-page;
+    gap: 12pt;
+    grid-template-columns: 24pt minmax(0, 1fr);
+    overflow: visible;
+    padding: 22pt 0;
+    page-break-inside: avoid;
+  }
+
+  .priority-item + .priority-item {
+    border-top: 1px solid #888;
+  }
+
+  .priority-item h2 {
+    font-size: 17pt;
+  }
+
+  .action-callout {
+    border-left: 2px solid #222;
+  }
+
+  .print-evidence-summary {
+    border-top: 1px solid #999;
+    margin-top: 14pt;
+    padding-top: 10pt;
+  }
+
+  .print-evidence-summary h3 {
+    font-size: 11pt;
+    margin: 0 0 8pt;
+  }
+
+  .print-evidence-summary .evidence-dimensions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .print-evidence-summary .evidence-dimensions > div {
+    background: transparent;
+    border-color: #aaa;
+  }
+
+  .print-evidence-summary .provenance-explanation {
+    display: none;
+  }
+
+  .timeline-section,
+  .then-consider {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+    padding: 22pt 0;
+  }
+
+  .timeline {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .then-consider a {
+    break-inside: avoid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+    page-break-inside: avoid;
+  }
+
+  .then-consider a b {
+    display: none;
+  }
+
+  a {
+    overflow-wrap: anywhere;
+    text-decoration: underline;
+  }
+
+  table {
+    max-width: 100%;
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  pre,
+  code,
+  p,
+  li {
+    overflow-wrap: anywhere;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  p,
+  li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .print-attribution {
+    border-top: 1px solid #555;
+    break-inside: avoid;
+    color: #222;
+    font-size: 8.5pt;
+    margin-top: 26pt;
+    padding-top: 12pt;
+    page-break-inside: avoid;
+  }
+
+  .print-attribution p {
+    margin: 0 0 4pt;
   }
 }
 
