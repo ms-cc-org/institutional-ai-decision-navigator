@@ -7,6 +7,7 @@ import { intents, intentsById } from "@/lib/intents";
 import type { IntentAnswers, IntentId } from "@/lib/types";
 import { createNavigatorSession } from "@/lib/session";
 import { decisionsById } from "@/lib/ontology";
+import { landingExampleDecisions, landingStats } from "@/lib/landing";
 import { ProfileForm } from "./ProfileForm";
 import { SituationInterpreter } from "./SituationInterpreter";
 
@@ -73,15 +74,28 @@ export function IntentNavigator() {
   if (!intent) {
     return (
       <main className="intent-home">
-        <section className="intent-intro">
-          <p className="eyebrow">An MS-CC decision-support resource</p>
-          <h1>How would you like to start?</h1>
-          <p className="lede">Choose the way that best matches what you need today. Every path helps you find practical, evidence-traceable guidance.</p>
+        <section className="landing-hero">
+          <p className="eyebrow">From AI guidance to institutional action</p>
+          <h1>Know what AI decisions your institution needs to make next.</h1>
+          <div className="landing-introduction">
+            <p>There is already extensive guidance on responsible and effective AI adoption. The harder problem is knowing what applies to your institution and what to do first.</p>
+            <p>The Institutional AI Decision Navigator turns that guidance into a structured decision model. Use it to identify the decisions that matter for your situation, understand what should happen first, and inspect the evidence behind each recommendation.</p>
+          </div>
         </section>
+        <dl className="credibility-strip" aria-label="Navigator scope">
+          <div><dt>{landingStats.decisions}</dt><dd>Institutional AI decisions</dd></div>
+          <div><dt>{landingStats.domains}</dt><dd>Decision domains</dd></div>
+          <div><dt>{landingStats.sources}</dt><dd>Registered evidence sources</dd></div>
+          <div><dt>Traceable</dt><dd>Recommendation evidence</dd></div>
+        </dl>
+        <header className="landing-section-heading">
+          <p className="eyebrow">Start with what you need</p>
+          <h2>Choose the path that fits your question.</h2>
+        </header>
         <section className="entry-modes" aria-label="Choose how to start">
-          <article><p className="eyebrow">Guide me</p><h2>Guide me through it</h2><p>Not sure where to start? Answer a few questions about your institution and get a prioritized path forward.</p><button onClick={() => chooseIntent("getting-started")}>Start guided assessment <span aria-hidden="true">→</span></button></article>
-          <article><p className="eyebrow">Ask · <span>Experimental</span></p><h2>Ask about my situation</h2><p>Have a specific question or challenge? Describe what&apos;s happening and find the decisions that matter.</p><button onClick={() => setSelectedMode("situation")}>Describe my situation <span aria-hidden="true">→</span></button></article>
-          <article><p className="eyebrow">Explore</p><h2>Explore a topic</h2><p>Browse practical guidance on AI governance, policy, data, security, infrastructure, teaching, research, and more.</p><Link href="/explore">Browse topics <span aria-hidden="true">→</span></Link></article>
+          <article><p className="eyebrow">Guide me</p><h2>Build my roadmap</h2><p>Not sure where to start? Answer a few questions about your institution and what you&apos;re trying to accomplish. The Navigator will identify and prioritize the decisions that deserve attention.</p><button onClick={() => chooseIntent("getting-started")}>Build my roadmap <span aria-hidden="true">→</span></button></article>
+          <article><p className="eyebrow">Ask · <span>Experimental</span></p><h2>Ask about my situation</h2><p>Have a specific challenge? Describe what&apos;s happening and identify the institutional decisions that may apply before building your path forward.</p><button onClick={() => setSelectedMode("situation")}>Describe my situation <span aria-hidden="true">→</span></button></article>
+          <article><p className="eyebrow">Explore</p><h2>Explore a topic</h2><p>Browse practical guidance across governance, policy, data, security, procurement, infrastructure, teaching, research, workforce, and other institutional AI topics.</p><Link href="/explore">Browse topics <span aria-hidden="true">→</span></Link></article>
         </section>
         <details className="intent-shortcuts">
           <summary>I already know my goal</summary>
@@ -93,6 +107,50 @@ export function IntentNavigator() {
             ))}
           </div>
         </details>
+
+        <section className="landing-explainer" aria-labelledby="guidance-decisions-heading">
+          <div className="landing-section-heading">
+            <p className="eyebrow">How it works</p>
+            <h2 id="guidance-decisions-heading">From guidance to decisions</h2>
+            <p>Most AI readiness resources help institutions understand what they should consider. The Navigator goes a step further by organizing guidance into specific institutional decisions and the relationships between them.</p>
+          </div>
+          <ol className="decision-flow">
+            <li>Your situation</li>
+            <li>Decisions that may apply</li>
+            <li>What to address first</li>
+            <li>Evidence behind the recommendation</li>
+          </ol>
+          <p className="flow-note">The path is generated deterministically from the structured ontology, institutional context, applicability rules, and documented relationships. It supports institutional judgment; it does not determine a single objectively correct answer.</p>
+        </section>
+
+        <section className="landing-questions" aria-labelledby="example-questions-heading">
+          <div className="landing-section-heading">
+            <p className="eyebrow">Recognizable institutional problems</p>
+            <h2 id="example-questions-heading">Questions the Navigator can help you work through</h2>
+          </div>
+          <div className="question-links">
+            {landingExampleDecisions.map((decision, index) => (
+              <Link href={`/decisions/${decision.id}`} key={decision.id}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <strong>{decision.question}</strong>
+                <b aria-hidden="true">→</b>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="landing-difference" aria-labelledby="difference-heading">
+          <div className="landing-section-heading">
+            <p className="eyebrow">Why this is different</p>
+            <h2 id="difference-heading">Built for decisions, not another maturity score.</h2>
+          </div>
+          <div className="difference-grid">
+            <article><p className="eyebrow">Synthesized</p><h3>Guidance becomes decisions.</h3><p>The Navigator organizes published guidance and documented practice into a structured institutional decision model instead of presenting another standalone framework.</p></article>
+            <article><p className="eyebrow">Contextual</p><h3>Your situation changes the path.</h3><p>Different institutions and use cases surface different decisions. The goal is not to give every institution the same checklist.</p></article>
+            <article><p className="eyebrow">Traceable</p><h3>The evidence remains inspectable.</h3><p>Each decision shows whether support is direct, corroborating, contextual, or researcher synthesis, along with its current validation status.</p></article>
+          </div>
+          <p className="pilot-note"><strong>MS-CC pilot:</strong> The decision model synthesizes published guidance and documented practice. Practitioner validation of the model and decision sequencing is ongoing.</p>
+        </section>
       </main>
     );
   }

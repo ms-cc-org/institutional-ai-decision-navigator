@@ -16,7 +16,7 @@ export function SiteHeader() {
         <Link href="/explore">Browse topics</Link>
         <Link href="/methodology">Methodology</Link>
         <Link href="/sources">Sources</Link>
-        <span className="version">Pilot · Evidence-traceable decision support</span>
+        <span className="version">MS-CC Pilot</span>
       </nav>
     </header>
   );

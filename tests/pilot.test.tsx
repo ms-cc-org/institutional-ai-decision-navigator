@@ -7,6 +7,7 @@ import { filterDecisions, emptyExplorerFilters } from "../lib/explorer";
 import { evaluateIntent } from "../lib/intent-engine";
 import { ontology } from "../lib/ontology";
 import { interpretSituation, situationToSession } from "../lib/situation-interpreter";
+import { landingExampleDecisions, landingStats } from "../lib/landing";
 import { createInstitutionContext, parseInstitutionProfile, parseNavigatorSession } from "../lib/session";
 import { NAVIGATOR_STORAGE_KEYS } from "../lib/roadmap-export";
 import type { InstitutionProfile } from "../lib/types";
@@ -29,18 +30,40 @@ describe("MS-CC pilot shell", () => {
     const footer = renderToStaticMarkup(<SiteFooter />);
     expect(header).toContain("/brand/mscc-logo-horizontal.png");
     expect(header).toContain("Browse topics");
+    expect(header).toContain("MS-CC Pilot");
     expect(footer).toContain("/brand/mscc-logo-vertical.png");
     exactAttribution.forEach((line) => expect(footer).toContain(line));
   });
 
   it("renders three primary entry modes and their destinations", () => {
     const source = readFileSync("components/IntentNavigator.tsx", "utf8");
-    expect(source).toContain("Guide me through it");
+    expect(source).toContain("Know what AI decisions your institution needs to make next.");
+    expect(source).toContain("Build my roadmap");
     expect(source).toContain("Ask about my situation");
     expect(source).toContain("Explore a topic");
     expect(source).toContain("Browse topics");
     expect(source).not.toContain("Explore the decision model");
     expect(source).toContain('href="/explore"');
+    expect(source).toContain('chooseIntent("getting-started")');
+    expect(source).toContain('setSelectedMode("situation")');
+  });
+
+  it("derives landing-page proof counts and examples from the canonical ontology", () => {
+    expect(landingStats).toEqual({
+      decisions: ontology.decisions.length,
+      domains: new Set(ontology.decisions.map((decision) => decision.domain)).size,
+      sources: ontology.sources.length,
+    });
+    expect(landingExampleDecisions).toHaveLength(5);
+    for (const decision of landingExampleDecisions) expect(ontology.decisions).toContain(decision);
+  });
+
+  it("uses evidence-honest landing-page positioning", () => {
+    const source = readFileSync("components/IntentNavigator.tsx", "utf8");
+    expect(source).toContain("Built for decisions, not another maturity score.");
+    expect(source).toContain("Practitioner validation of the model and decision sequencing is ongoing.");
+    expect(source).toContain("researcher synthesis");
+    expect(source).not.toMatch(/scientifically proven|validated recommendations|authoritative recommendations/i);
   });
 
   it("uses plain-language explorer headings, search copy, and topic labels", () => {

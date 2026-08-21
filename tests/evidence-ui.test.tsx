@@ -40,9 +40,10 @@ describe("v0.3.3 evidence presentation", () => {
     const html = renderToStaticMarkup(<RootLayout><main>Content</main></RootLayout>);
     expect(metadata.title).toBe(PRODUCT_TITLE);
     expect(metadata.description).toBe(PRODUCT_DESCRIPTION);
+    expect(PRODUCT_DESCRIPTION).toContain("evidence-traceable");
     expect(metadata.alternates?.canonical).toBe(CANONICAL_SITE_URL);
     expect(metadata.openGraph?.url).toBe(CANONICAL_SITE_URL);
-    expect(html).toContain("Evidence-traceable decision support");
+    expect(html).toContain("MS-CC Pilot");
     expect(html.toLowerCase()).not.toContain("evidence-based");
   });
 });
