@@ -6,7 +6,7 @@ Canonical repository: [github.com/ms-cc-org/institutional-ai-decision-navigator]
 
 ## Ontology
 
-`data/ontology.json` is the source of truth. Version 0.3.2 contains 99 decisions, 202 prerequisite or related-to relationships, and 27 registered sources. It keeps source support separate from independent corroboration and includes assertion-level evidence links, controlled decision categories, and relationship provenance.
+`data/ontology.json` is the source of truth. Version 0.3.3 contains 99 decisions, 202 prerequisite or related-to relationships, and 33 registered sources. This health-data, privacy, and compliance evidence enrichment keeps source support separate from independent corroboration and from application-level applicability routing.
 
 `lib/ontology.ts` validates every required decision and relationship field at load time, rejects duplicate IDs, and ensures relationships refer to existing decisions. Application-specific profile and result types live separately in `lib/types.ts`.
 
@@ -20,7 +20,7 @@ The original deterministic profile engine in `lib/engine.ts` is preserved as the
 
 Working-group review is optional and stored only on the current device. Reviewers can export structured JSON for manual sharing with MS-CC; the pilot does not centrally submit feedback.
 
-See [docs/architecture.md](docs/architecture.md) for the complete data flow and thresholds, and [docs/EVIDENCE_AUDIT_v0.3.2.md](docs/EVIDENCE_AUDIT_v0.3.2.md) for the authoritative evidence and provenance audit.
+See [docs/architecture.md](docs/architecture.md) for the complete data flow and thresholds, [docs/EVIDENCE_AUDIT_v0.3.3.md](docs/EVIDENCE_AUDIT_v0.3.3.md) for the release audit, and [docs/FUTURE_LITERATURE_BACKLOG.md](docs/FUTURE_LITERATURE_BACKLOG.md) for unverified review candidates.
 
 ## Run locally
 
@@ -60,5 +60,5 @@ The Institutional AI Decision Navigator was initially conceived and developed by
 - Targeted pathways use three to five context questions; the general assessment uses fourteen observable indicators and deterministic internal defaults where the current engine still requires additional fields.
 - Prerequisite completion is estimated from profile maturity rather than collected decision-by-decision.
 - Scores and thresholds are transparent heuristics, not validated institutional benchmarks.
-- Some source records lack a year or URL, and all evidence links still lack passage-level source locations. The interface leaves those gaps visible rather than filling them by inference.
+- Some source records lack a year or URL, and 244 of 270 evidence links still lack passage-level source locations. The interface leaves those gaps visible rather than filling them by inference.
 - The ontology is not yet practitioner validated. Relationship provenance distinguishes structural confidence from source or practitioner validation.

@@ -3,10 +3,13 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { interpretSituation, situationObservations, situationToSession } from "@/lib/situation-interpreter";
-import type { SituationContext, SituationState } from "@/lib/types";
+import { primaryApplicabilityContexts } from "@/lib/applicability-contexts";
+import type { ApplicabilityContextId, SituationContext, SituationState } from "@/lib/types";
+
+type ScalarSituationKey = Exclude<keyof SituationContext, "applicabilityContextIds">;
 
 const fieldOptions: Array<{
-  key: keyof SituationContext;
+  key: ScalarSituationKey;
   label: string;
   options: Array<[string, string]>;
 }> = [
@@ -33,12 +36,22 @@ export function SituationInterpreter({ onBack }: { onBack: () => void }) {
     setInterpreted(interpretSituation(text.trim()));
     setEditing(false);
   };
-  const updateContext = (key: keyof SituationContext, value: string) => {
+  const updateContext = (key: ScalarSituationKey, value: string) => {
     setInterpreted((current) => current ? {
       ...current,
       context: { ...current.context, [key]: value },
       observations: situationObservations({ ...current.context, [key]: value } as SituationContext),
     } : current);
+  };
+  const toggleApplicability = (contextId: ApplicabilityContextId) => {
+    setInterpreted((current) => {
+      if (!current) return current;
+      const selected = current.context.applicabilityContextIds.includes(contextId)
+        ? current.context.applicabilityContextIds.filter((id) => id !== contextId)
+        : [...current.context.applicabilityContextIds, contextId];
+      const context = { ...current.context, applicabilityContextIds: selected };
+      return { ...current, context, observations: situationObservations(context) };
+    });
   };
   const confirm = () => {
     if (!interpreted) return;
@@ -89,7 +102,18 @@ export function SituationInterpreter({ onBack }: { onBack: () => void }) {
               {field.options.map(([value, label]) => <option value={value} key={value}>{label}</option>)}
             </select>
           </label>
-        ))}</div>}
+        ))}
+          <fieldset className="applicability-checks">
+            <legend>Possible data or requirement contexts</legend>
+            {primaryApplicabilityContexts.map((context) => (
+              <label key={context.id}>
+                <input type="checkbox" checked={interpreted.context.applicabilityContextIds.includes(context.id)} onChange={() => toggleApplicability(context.id)} />
+                {context.label}
+              </label>
+            ))}
+            <p>These possible contexts help route decisions; they do not determine legal compliance.</p>
+          </fieldset>
+        </div>}
         <div className="review-actions">
           <button className="primary-button" onClick={confirm}>That&apos;s right — show decisions</button>
           <button className="secondary-button" onClick={() => setEditing((current) => !current)}>{editing ? "Finish editing" : "Edit this"}</button>

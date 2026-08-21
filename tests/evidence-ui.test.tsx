@@ -6,7 +6,7 @@ import { RelationshipProvenanceNote } from "../components/RelationshipProvenance
 import { decisionsById, ontology } from "../lib/ontology";
 import { CANONICAL_SITE_URL, PRODUCT_DESCRIPTION, PRODUCT_TITLE } from "../lib/site";
 
-describe("v0.3.2 evidence presentation", () => {
+describe("v0.3.3 evidence presentation", () => {
   it("separates direct support from absent independent corroboration", () => {
     const decision = decisionsById.get("POL-008")!;
     const summary = renderToStaticMarkup(<EvidenceSummary decision={decision} />);

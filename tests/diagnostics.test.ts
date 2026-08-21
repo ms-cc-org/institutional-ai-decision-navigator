@@ -89,6 +89,16 @@ describe("observable diagnostic model", () => {
     expect(evaluateIntent("getting-started", {}, profile).primary).toHaveLength(3);
   });
 
+  it("routes broad data contexts without making legal conclusions", () => {
+    const health = { ...answers, regulated_data: "hipaa_phi" };
+    const publicData = { ...answers, regulated_data: "public_non_sensitive_data" };
+    expect(deriveInstitutionProfile(health).regulatedDataUsage).toBe(true);
+    expect(deriveInstitutionProfile(publicData).regulatedDataUsage).toBe(false);
+    expect(summarizeDiagnostics(health)).toContain("Health information may be involved.");
+    expect(summarizeDiagnostics(health).join(" ")).not.toMatch(/HIPAA applies|compliant/i);
+    expect(deriveInstitutionProfile({ ...answers, regulated_data: "unsure" }).regulatedDataUsage).toBe(true);
+  });
+
   it("persists versioned diagnostics and gracefully rejects legacy profile JSON", () => {
     const state = createDiagnosticState(answers);
     expect(parseDiagnosticState(JSON.stringify(state))).toEqual(state);

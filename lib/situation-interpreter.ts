@@ -1,7 +1,26 @@
 import { createNavigatorSession } from "./session";
-import type { IntentAnswers, IntentId, NavigatorSession, SituationContext, SituationState } from "./types";
+import { applicabilityLabel } from "./applicability-contexts";
+import type { ApplicabilityContextId, IntentAnswers, IntentId, NavigatorSession, SituationContext, SituationState } from "./types";
 
 const contains = (text: string, pattern: RegExp) => pattern.test(text);
+
+function detectApplicabilityContexts(text: string): ApplicabilityContextId[] {
+  const matches: ApplicabilityContextId[] = [];
+  const add = (...ids: ApplicabilityContextId[]) => ids.forEach((id) => { if (!matches.includes(id)) matches.push(id); });
+  if (contains(text, /\b(student|education) records?\b|\bferpa\b|\bstudent data\b/)) add("ferpa_education_records");
+  if (contains(text, /\bcampus counseling records?\b/)) add("hipaa_phi", "hipaa_ephi", "part2_sud_records");
+  else if (contains(text, /\b(patient|health) records?\b|\bhipaa\b|\bphi\b|\bprotected health information\b/)) add("hipaa_phi", "hipaa_ephi");
+  if (contains(text, /\bephi\b|\belectronic (?:protected health information|phi)\b|\bbaa\b|\bbusiness associate agreement\b/)) add("hipaa_ephi");
+  if (contains(text, /\bconsumer health data\b|\b(?:health|wellness) app data\b/)) add("consumer_health_data");
+  if (contains(text, /\b42 cfr part 2\b|\bpart 2 records?\b|\bsubstance[- ]use treatment records?\b/)) add("part2_sud_records");
+  if (contains(text, /\bhuman subjects?\b|\bresearch participants?\b|\birb\b|\binstitutional review board\b/)) add("human_subjects_research");
+  if (contains(text, /\bcui\b|\bcontrolled unclassified information\b|\bcontrolled research data\b/)) add("cui_controlled_research");
+  if (contains(text, /\bcontract[- ]restricted data\b|\bdata use agreement\b|\bdua\b/)) add("contract_restricted_data");
+  if (contains(text, /\btribal data\b|\bindigenous data\b|\bcommunity[- ]governed data\b/)) add("indigenous_community_governed_data");
+  if (contains(text, /\b(sensitive|regulated|personal|confidential) data\b/)) add("general_sensitive_data");
+  if (contains(text, /\b(public|open|non-sensitive) data\b/)) add("public_non_sensitive_data");
+  return matches;
+}
 
 export function interpretSituation(rawText: string): SituationState {
   const text = rawText.toLowerCase();
@@ -44,7 +63,7 @@ export function interpretSituation(rawText: string): SituationState {
   else if (contains(text, /\b(no|don't have|do not have|without|lack(?:ing)?) (?:an? )?(?:ai )?(?:policy|guidelines?)\b/)) policy = "none";
 
   let dataSensitivity: SituationContext["dataSensitivity"] = "unknown";
-  if (contains(text, /\b(sensitive|regulated|student records?|ferpa|hipaa|restricted|personal data)\b/)) dataSensitivity = "sensitive";
+  if (contains(text, /\b(sensitive|regulated|student records?|ferpa|hipaa|phi|ephi|patient records?|health records?|human subjects?|irb|cui|tribal data|indigenous data|restricted|personal data)\b/)) dataSensitivity = "sensitive";
   else if (contains(text, /\binternal (?:institutional )?data\b/)) dataSensitivity = "internal";
   else if (contains(text, /\b(public|open|non-sensitive) data\b/)) dataSensitivity = "public";
 
@@ -57,7 +76,10 @@ export function interpretSituation(rawText: string): SituationState {
   if (contains(text, /\b(admission|hiring|employment|financial aid|discipline|consequential decision)\b/)) peopleImpact = "yes";
   else if (contains(text, /\b(will not|won't|does not) (?:make|influence) decisions? about people\b/)) peopleImpact = "no";
 
-  const context: SituationContext = { topic, institutionType, institutionScale, adoption, governance, policy, dataSensitivity, procurement, peopleImpact };
+  const applicabilityContextIds = detectApplicabilityContexts(text);
+  if (dataSensitivity === "unknown" && applicabilityContextIds.some((id) => id !== "public_non_sensitive_data")) dataSensitivity = "sensitive";
+  else if (dataSensitivity === "unknown" && applicabilityContextIds.includes("public_non_sensitive_data")) dataSensitivity = "public";
+  const context: SituationContext = { topic, institutionType, institutionScale, adoption, governance, policy, dataSensitivity, procurement, peopleImpact, applicabilityContextIds };
   return { version: 1, rawText, context, observations: situationObservations(context), confirmed: false };
 }
 
@@ -84,6 +106,7 @@ export function situationObservations(context: SituationContext): string[] {
   if (context.dataSensitivity === "unknown") observations.push("Data sensitivity was not clear from the description.");
   if (context.peopleImpact === "yes") observations.push("The situation may affect consequential decisions about people.");
   if (context.peopleImpact === "unknown") observations.push("Potential impact on consequential decisions about people was not clear.");
+  for (const contextId of context.applicabilityContextIds) observations.push(`${applicabilityLabel(contextId)} may be involved.`);
   if (context.topic !== "unknown") observations.push(`Primary situation: ${context.topic.replaceAll("_", " ")}.`);
   return observations;
 }
@@ -91,18 +114,21 @@ export function situationObservations(context: SituationContext): string[] {
 export function situationToSession(context: SituationContext): NavigatorSession {
   let intentId: IntentId;
   const answers: IntentAnswers = {};
+  const dataSensitivity = context.dataSensitivity === "unknown" && context.applicabilityContextIds.some((id) => id !== "public_non_sensitive_data")
+    ? "sensitive"
+    : context.dataSensitivity;
   switch (context.topic) {
     case "procurement":
       intentId = "evaluate-tool";
       answers.tool_type = "unsure";
-      answers.data_access = context.dataSensitivity === "unknown" ? "unsure" : context.dataSensitivity;
+      answers.data_access = dataSensitivity === "unknown" ? "unsure" : dataSensitivity;
       answers.people_decisions = context.peopleImpact === "unknown" ? "unsure" : context.peopleImpact;
       answers.purchase_type = context.procurement === "unknown" || context.procurement === "none" ? "unsure" : context.procurement;
       break;
     case "research":
       intentId = "support-research";
       answers.research_stage = "planning";
-      answers.research_data = context.dataSensitivity === "internal" ? "institutional" : context.dataSensitivity === "unknown" ? "unsure" : context.dataSensitivity;
+      answers.research_data = dataSensitivity === "internal" ? "institutional" : dataSensitivity === "unknown" ? "unsure" : dataSensitivity;
       answers.local_compute = "unsure";
       answers.research_output = "unsure";
       break;
@@ -117,7 +143,7 @@ export function situationToSession(context: SituationContext): NavigatorSession 
     case "policy":
       intentId = "develop-policy";
       answers.audience = "unsure";
-      answers.sensitive_data = context.dataSensitivity === "sensitive" ? "yes" : context.dataSensitivity === "public" ? "no" : "unsure";
+      answers.sensitive_data = dataSensitivity === "sensitive" ? "yes" : dataSensitivity === "public" ? "no" : "unsure";
       answers.consequential = context.peopleImpact === "unknown" ? "unsure" : context.peopleImpact;
       answers.procurement = context.procurement === "new" || context.procurement === "existing" ? "yes" : "unsure";
       break;
@@ -132,7 +158,7 @@ export function situationToSession(context: SituationContext): NavigatorSession 
       intentId = "infrastructure";
       answers.workload_known = "unsure";
       answers.demand = context.adoption === "widespread" ? "multiple" : "unsure";
-      answers.data_access = context.dataSensitivity === "sensitive" ? "yes" : context.dataSensitivity === "public" ? "no" : "unsure";
+      answers.data_access = dataSensitivity === "sensitive" ? "yes" : dataSensitivity === "public" ? "no" : "unsure";
       answers.local_capacity = "moderate";
       break;
     case "skills_support": intentId = "skills-support"; break;
@@ -140,7 +166,7 @@ export function situationToSession(context: SituationContext): NavigatorSession 
       intentId = "administrative-automation";
       answers.process_stage = context.adoption === "widespread" ? "live" : "idea";
       answers.people_decisions = context.peopleImpact === "unknown" ? "unsure" : context.peopleImpact;
-      answers.data_access = context.dataSensitivity === "sensitive" ? "yes" : context.dataSensitivity === "public" ? "no" : "unsure";
+      answers.data_access = dataSensitivity === "sensitive" ? "yes" : dataSensitivity === "public" ? "no" : "unsure";
       answers.human_review = "unsure";
       break;
     default:
@@ -156,6 +182,7 @@ export function parseSituationState(value: string): SituationState | null {
   if (!value) return null;
   try {
     const parsed = JSON.parse(value) as SituationState;
+    if (parsed.context && !Array.isArray(parsed.context.applicabilityContextIds)) parsed.context.applicabilityContextIds = [];
     return parsed.version === 1 && typeof parsed.rawText === "string" && Boolean(parsed.context) && Array.isArray(parsed.observations) ? parsed : null;
   } catch {
     return null;

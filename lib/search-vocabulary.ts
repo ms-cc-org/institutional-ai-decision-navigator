@@ -1,3 +1,5 @@
+import { applicabilityContexts } from "./applicability-contexts";
+
 export interface SearchConcept {
   id: string;
   terms: string[];
@@ -72,6 +74,12 @@ export const searchVocabulary: SearchConcept[] = [
   },
 ];
 
+export const applicabilitySearchVocabulary: SearchConcept[] = applicabilityContexts.map((context) => ({
+  id: `applicability-${context.id}`,
+  terms: context.aliases,
+  decisionIds: context.relatedDecisionIds,
+}));
+
 const pluralTokens: Record<string, string> = {
   accelerators: "accelerator",
   assistants: "assistant",
@@ -105,7 +113,7 @@ export function normalizeSearchText(value: string) {
 export function conceptsForQuery(query: string) {
   const normalizedQuery = normalizeSearchText(query);
   if (!normalizedQuery) return [];
-  return searchVocabulary.filter((concept) => concept.terms.some((term) => {
+  return [...searchVocabulary, ...applicabilitySearchVocabulary].filter((concept) => concept.terms.some((term) => {
     const normalizedTerm = normalizeSearchText(term);
     return normalizedQuery === normalizedTerm || normalizedQuery.includes(normalizedTerm);
   }));

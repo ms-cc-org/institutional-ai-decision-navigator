@@ -7,7 +7,7 @@ export default function SourcesPage() {
       <header>
         <p className="eyebrow">Source registry</p>
         <h1>Sources represented in the ontology.</h1>
-        <p className="lede">These 27 records are the source metadata supplied by ontology v0.3.2. A source association is traceability metadata; its evidence link describes whether support is direct, corroborating, contextual, or researcher synthesis.</p>
+        <p className="lede">These {ontology.sources.length} records are the source metadata supplied by ontology v{ontology.version}. A source association is traceability metadata; its evidence link describes whether support is direct, corroborating, contextual, or researcher synthesis.</p>
       </header>
       <section className="source-registry" aria-label="Ontology source registry">
         {ontology.sources.map((source) => {

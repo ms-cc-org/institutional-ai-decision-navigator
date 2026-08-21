@@ -15,6 +15,29 @@ export type DecisionCategory =
   | "ACCESSIBILITY_EQUITY"
   | "EVALUATION_LIFECYCLE";
 export type ValidationStatus = "not_validated" | "practitioner_supported" | "mixed" | "challenged";
+export type ApplicabilityContextId =
+  | "general_sensitive_data"
+  | "public_non_sensitive_data"
+  | "ferpa_education_records"
+  | "hipaa_phi"
+  | "hipaa_ephi"
+  | "consumer_health_data"
+  | "part2_sud_records"
+  | "human_subjects_research"
+  | "cui_controlled_research"
+  | "contract_restricted_data"
+  | "indigenous_community_governed_data";
+
+export interface ApplicabilityContext {
+  id: ApplicabilityContextId;
+  label: string;
+  description: string;
+  category: "general" | "education" | "health" | "research" | "contractual" | "community";
+  aliases: string[];
+  relatedDecisionIds: string[];
+  primary: boolean;
+  parentId?: ApplicabilityContextId;
+}
 
 export interface Source {
   id: string;
@@ -85,7 +108,7 @@ export interface Relationship {
   };
 }
 export interface Ontology {
-  version: "0.3.2";
+  version: "0.3.3";
   description: string;
   sources: Source[];
   decisions: Decision[];
@@ -219,6 +242,7 @@ export interface SituationContext {
   dataSensitivity: "public" | "internal" | "sensitive" | "unknown";
   procurement: "new" | "existing" | "none" | "unknown";
   peopleImpact: "yes" | "no" | "unknown";
+  applicabilityContextIds: ApplicabilityContextId[];
 }
 
 export interface SituationState {

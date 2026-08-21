@@ -4,6 +4,8 @@ import type {
   DiagnosticState,
   InstitutionProfile,
 } from "./types";
+import { applicabilityLabel } from "./applicability-contexts";
+import type { ApplicabilityContextId } from "./types";
 
 const yesNoUnsure = [
   { value: "yes", label: "Yes" },
@@ -45,11 +47,29 @@ export const diagnosticIndicators: DiagnosticIndicator[] = [
   {
     id: "regulated_data",
     dimension: "data_scope",
-    question: "Will current or planned AI uses involve sensitive or regulated institutional data?",
-    helpText: "Examples include student, health, employment, financial, research participant, or contract-restricted data.",
-    responseOptions: yesNoUnsure,
+    question: "What kind of data is involved?",
+    helpText: "Choose the closest observable context. This helps route decisions; it does not determine which laws apply.",
+    responseOptions: [
+      { value: "public_non_sensitive_data", label: "Public / non-sensitive" },
+      { value: "ferpa_education_records", label: "Student / education records" },
+      { value: "hipaa_phi", label: "Health information" },
+      { value: "human_subjects_research", label: "Human-subjects research data" },
+      { value: "cui_controlled_research", label: "Controlled / contract-restricted research data" },
+      { value: "indigenous_community_governed_data", label: "Indigenous / community-governed data" },
+      { value: "general_sensitive_data", label: "Other sensitive institutional data" },
+      { value: "unsure", label: "Not sure" },
+    ],
     relatedDecisionIds: ["DAT-001", "DAT-002", "POL-005", "SEC-007"],
-    stateMapping: { yes: "in_scope", no: "not_in_scope", unsure: "uncertain" },
+    stateMapping: {
+      public_non_sensitive_data: "not_in_scope",
+      ferpa_education_records: "ferpa_education_records",
+      hipaa_phi: "hipaa_phi",
+      human_subjects_research: "human_subjects_research",
+      cui_controlled_research: "cui_controlled_research",
+      indigenous_community_governed_data: "indigenous_community_governed_data",
+      general_sensitive_data: "general_sensitive_data",
+      unsure: "uncertain",
+    },
   },
   {
     id: "governance_owner",
@@ -226,7 +246,7 @@ export function deriveInstitutionProfile(answers: DiagnosticAnswers): Institutio
     securityMaturity: answers.secure_research_environment === "yes" ? "strong" : answers.secure_research_environment === "no" ? "weak" : "developing",
     aiAdoptionLevel: deriveAdoptionState(answers),
     primaryObjectives: [(answers.primary_objective as InstitutionProfile["primaryObjectives"][number]) || "teaching_learning"],
-    regulatedDataUsage: answers.regulated_data !== "no",
+    regulatedDataUsage: answers.regulated_data !== "no" && answers.regulated_data !== "public_non_sensitive_data",
     budgetFlexibility: "moderate",
     aiExpertise: answers.research_expertise === "yes" ? "strong" : answers.research_expertise === "no" ? "limited" : "moderate",
     accessibilityMaturity: "developing",
@@ -252,6 +272,9 @@ export function summarizeDiagnostics(answers: DiagnosticAnswers): string[] {
 
   if (answers.regulated_data === "yes") observations.push("Sensitive or regulated data is in scope.");
   else if (answers.regulated_data === "unsure") observations.push("Whether sensitive or regulated data is in scope is uncertain.");
+  else if (answers.regulated_data && answers.regulated_data !== "public_non_sensitive_data" && answers.regulated_data !== "no") {
+    observations.push(`${applicabilityLabel(answers.regulated_data as ApplicabilityContextId)} may be involved.`);
+  }
 
   const capacity = deriveResearchCapacityState(answers);
   if (capacity === "limited") observations.push("Research AI compute and support capacity appears limited.");

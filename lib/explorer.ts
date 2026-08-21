@@ -1,5 +1,7 @@
 import type { Decision } from "./types";
 import { conceptsForQuery, normalizeSearchText } from "./search-vocabulary";
+import { decisionAppliesTo } from "./applicability-contexts";
+import type { ApplicabilityContextId } from "./types";
 
 export interface ExplorerFilters {
   query: string;
@@ -7,6 +9,7 @@ export interface ExplorerFilters {
   sourceSupport: string;
   corroboration: string;
   validationStatus: string;
+  applicabilityContext: ApplicabilityContextId | "all";
 }
 
 export const emptyExplorerFilters: ExplorerFilters = {
@@ -15,6 +18,7 @@ export const emptyExplorerFilters: ExplorerFilters = {
   sourceSupport: "all",
   corroboration: "all",
   validationStatus: "all",
+  applicabilityContext: "all",
 };
 
 export type SearchMatchType = "question_phrase" | "question_keywords" | "action" | "topic" | "alias";
@@ -59,6 +63,7 @@ export function rankDecisionsForQuery(decisions: Decision[], rawQuery: string): 
 export function filterDecisions(decisions: Decision[], filters: ExplorerFilters) {
   const filtered = decisions.filter((decision) => {
     return (filters.domain === "all" || decision.domain === filters.domain)
+      && (filters.applicabilityContext === "all" || decisionAppliesTo(decision, filters.applicabilityContext))
       && (filters.sourceSupport === "all" || decision.evidence_profile.source_support === filters.sourceSupport)
       && (filters.corroboration === "all" || decision.evidence_profile.corroboration === filters.corroboration)
       && (filters.validationStatus === "all" || decision.evidence_profile.validation_status === filters.validationStatus);

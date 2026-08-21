@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { isC035C036OnlyDecision, ontology, parseOntology, splitField } from "../lib/ontology";
 
-describe("ontology v0.3.2 schema", () => {
+describe("ontology v0.3.3 schema", () => {
   it("loads the canonical release cardinalities", () => {
-    expect(ontology.version).toBe("0.3.2");
+    expect(ontology.version).toBe("0.3.3");
     expect(ontology.decisions).toHaveLength(99);
     expect(ontology.relationships).toHaveLength(202);
-    expect(ontology.sources).toHaveLength(27);
+    expect(ontology.sources).toHaveLength(33);
   });
 
   it("resolves every decision and evidence-link source", () => {
@@ -41,17 +41,34 @@ describe("ontology v0.3.2 schema", () => {
     expect(() => parseOntology(ontology)).not.toThrow();
   });
 
-  it("preserves null source locations", () => {
-    expect(ontology.decisions.flatMap((decision) => decision.evidence_links)).not.toHaveLength(0);
-    expect(ontology.decisions.flatMap((decision) => decision.evidence_links).every((link) => link.source_location === null)).toBe(true);
+  it("adds passage locations without concealing remaining gaps", () => {
+    const links = ontology.decisions.flatMap((decision) => decision.evidence_links);
+    expect(links.filter((link) => link.source_location !== null)).toHaveLength(26);
+    expect(links.filter((link) => link.source_location === null)).toHaveLength(244);
   });
 
   it("identifies decisions relying only on C035 and/or C036", () => {
-    expect(ontology.decisions.filter(isC035C036OnlyDecision)).toHaveLength(34);
+    expect(ontology.decisions.filter(isC035C036OnlyDecision)).toHaveLength(27);
+  });
+
+  it("resolves C039–C044 and preserves validation status", () => {
+    const sourceIds = new Set(ontology.sources.map((source) => source.id));
+    for (const sourceId of ["C039", "C040", "C041", "C042", "C043", "C044"]) expect(sourceIds.has(sourceId)).toBe(true);
+    expect(new Set(ontology.sources.map((source) => source.id)).size).toBe(ontology.sources.length);
+    expect(ontology.decisions.every((decision) => decision.evidence_profile.validation_status === "not_validated")).toBe(true);
+    expect(ontology.decisions.find((decision) => decision.id === "DAT-002")?.evidence_profile).toMatchObject({ evidence_breadth: 7, corroboration: "multiple_independent_sources" });
+  });
+
+  it("keeps evidence breadth synchronized with unique linked sources", () => {
+    for (const decision of ontology.decisions) {
+      const linkedSources = new Set(decision.evidence_links.map((link) => link.source_id));
+      expect(decision.evidence_profile.evidence_breadth, decision.id).toBe(linkedSources.size);
+      expect(new Set(splitField(decision.source_ids)), decision.id).toEqual(linkedSources);
+    }
   });
 });
 
-describe("ontology v0.3.2 runtime validation", () => {
+describe("ontology v0.3.3 runtime validation", () => {
   it("rejects duplicate decision IDs", () => {
     const invalid = structuredClone(ontology);
     invalid.decisions[1].id = invalid.decisions[0].id;

@@ -199,13 +199,13 @@ export function parseOntology(input: unknown): Ontology {
   if (!isRecord(input)) throw new Error("Ontology must be an object");
   const value = input;
   if (
-    value.version !== "0.3.2" ||
+    value.version !== "0.3.3" ||
     typeof value.description !== "string" ||
     !Array.isArray(value.sources) ||
     !Array.isArray(value.decisions) ||
     !Array.isArray(value.relationships)
   ) {
-    throw new Error("Ontology is missing required v0.3.2 fields");
+    throw new Error("Ontology is missing required v0.3.3 fields");
   }
 
   const sourceRegistry = parseSources(value.sources);
@@ -227,7 +227,7 @@ export function parseOntology(input: unknown): Ontology {
   }
 
   return {
-    version: "0.3.2",
+    version: "0.3.3",
     description: value.description,
     sources: sourceRegistry.sources,
     decisions: value.decisions as Decision[],

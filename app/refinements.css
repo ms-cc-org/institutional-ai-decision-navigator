@@ -1100,6 +1100,11 @@ footer a {
 .validator-context select,
 .decision-validation select,
 .relationship-validation select { background: white; border: 1px solid #8b9891; color: var(--ink); font: inherit; min-height: 44px; padding: 9px 12px; }
+.applicability-checks { border: 1px solid var(--line); display: grid; gap: 10px; grid-column: 1 / -1; padding: 18px; }
+.applicability-checks legend { font-weight: 700; padding: 0 6px; }
+.applicability-checks label { align-items: center; display: flex; gap: 9px; }
+.applicability-checks p,
+.applicability-disclaimer { color: var(--muted); font-size: 12px; }
 .review-actions { align-items: center; display: flex; flex-wrap: wrap; gap: 14px; margin-top: 30px; }
 
 /* Explorer */
@@ -1114,6 +1119,7 @@ footer a {
 .explorer-controls select { background: white; border: 1px solid #8b9891; color: var(--ink); font: inherit; min-height: 44px; padding: 10px 12px; width: 100%; }
 .explorer-controls button { align-self: end; min-height: 44px; }
 .explorer-count { color: var(--muted); font-size: 13px; margin: 24px 0 14px; }
+.applicability-disclaimer { margin: 10px 2px 0; }
 .explorer-results { display: grid; gap: 14px; grid-template-columns: repeat(2, 1fr); }
 .explorer-results article { background: var(--white); border: 1px solid var(--line); display: flex; flex-direction: column; padding: 25px; }
 .explorer-results h2 { font-family: Georgia, serif; font-size: 24px; font-weight: 400; line-height: 1.25; margin: 4px 0 14px; }

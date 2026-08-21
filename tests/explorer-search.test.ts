@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { guidedPathForDecision, mapDecisionToIntent } from "../lib/decision-intent";
 import { emptyExplorerFilters, filterDecisions, rankDecisionsForQuery } from "../lib/explorer";
 import { decisionsById, ontology } from "../lib/ontology";
-import { normalizeSearchText, searchVocabulary } from "../lib/search-vocabulary";
+import { applicabilitySearchVocabulary, normalizeSearchText, searchVocabulary } from "../lib/search-vocabulary";
 
 const search = (query: string) => filterDecisions(ontology.decisions, { ...emptyExplorerFilters, query });
 const ids = (query: string) => search(query).map((decision) => decision.id);
@@ -21,6 +21,20 @@ describe("explorer search vocabulary", () => {
     const resultIds = ids(query);
     expect(resultIds[0]).toBe(firstId);
     expect(resultIds).toEqual(expect.arrayContaining(expectedIds));
+  });
+
+  it.each([
+    ["education records", "POL-005"],
+    ["HIPAA", "DAT-002"],
+    ["PHI", "DAT-002"],
+    ["ePHI", "DAT-002"],
+    ["BAA", "DAT-002"],
+    ["human subjects", "POL-005"],
+    ["IRB", "POL-005"],
+    ["CUI", "POL-005"],
+    ["Indigenous data", "ACC-004"],
+  ])("routes applicability search %s to %s", (query, expectedId) => {
+    expect(ids(query)).toContain(expectedId);
   });
 
   it("normalizes case and curated plural variants", () => {
@@ -43,7 +57,7 @@ describe("explorer search vocabulary", () => {
   });
 
   it("keeps every curated vocabulary reference anchored to the ontology", () => {
-    for (const concept of searchVocabulary) {
+    for (const concept of [...searchVocabulary, ...applicabilitySearchVocabulary]) {
       expect(concept.terms.length, concept.id).toBeGreaterThan(0);
       for (const decisionId of concept.decisionIds) expect(decisionsById.has(decisionId), `${concept.id}: ${decisionId}`).toBe(true);
     }

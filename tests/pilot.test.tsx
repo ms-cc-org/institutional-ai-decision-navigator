@@ -51,6 +51,8 @@ describe("MS-CC pilot shell", () => {
     expect(source).toContain("All topics");
     expect(source).toContain('href="/?intent=getting-started"');
     expect(source).toContain("Guide me through it →");
+    expect(source).toContain("What kind of data or requirements are involved?");
+    expect(source).toContain("They do not determine legal compliance.");
     expect(source).toContain("We couldn&apos;t find a close match.");
     expect(source).not.toContain("Search decision text or expected output");
     expect(source).not.toContain("Explore the decision model");
@@ -107,6 +109,20 @@ describe("deterministic situation interpretation", () => {
     expect(evaluateIntent(session.intentId, session.answers).primary.length).toBeGreaterThan(0);
   });
 
+  it.each([
+    ["student records", ["ferpa_education_records"]],
+    ["patient records", ["hipaa_phi", "hipaa_ephi"]],
+    ["human subjects data", ["human_subjects_research"]],
+    ["CUI research data", ["cui_controlled_research"]],
+    ["Tribal data", ["indigenous_community_governed_data"]],
+  ])("maps %s to possible applicability and still requires confirmation", (phrase, expected) => {
+    const state = interpretSituation(`Our institution is planning an AI project involving ${phrase}.`);
+    expect(state.context.applicabilityContextIds).toEqual(expect.arrayContaining(expected));
+    expect(state.observations.some((observation) => observation.includes("may be involved"))).toBe(true);
+    expect(state.observations.join(" ")).not.toMatch(/applies|compliant/i);
+    expect(state.confirmed).toBe(false);
+  });
+
   it("migrates legacy navigator and institution context records safely", () => {
     const legacySession = parseNavigatorSession(JSON.stringify({ intentId: "set-direction", answers: { current_use: "yes" } }));
     expect(legacySession?.version).toBe(1);
@@ -142,7 +158,7 @@ describe("working-group feedback", () => {
     expect(values.get(RELATIONSHIP_FEEDBACK_KEY)).toContain("STR-001->GOV-001");
     const exported = buildValidationExport({ version: 1, role: "faculty", institutionType: "masters", institutionSize: "2500_5000" }, { "GOV-001": decision }, { "STR-001->GOV-001": relationship }, ontology.version, new Date("2026-08-20T00:00:00.000Z"));
     expect(exported.pilot).toBe("MS-CC Institutional AI Decision Navigator");
-    expect(exported.ontology_version).toBe("0.3.2");
+    expect(exported.ontology_version).toBe("0.3.3");
     expect(exported.decisions_reviewed[0].decisionId).toBe("GOV-001");
     expect(exported.relationship_reviews[0].to).toBe("GOV-001");
   });
