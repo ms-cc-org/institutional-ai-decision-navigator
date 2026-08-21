@@ -37,7 +37,7 @@ describe("MS-CC pilot shell", () => {
 
   it("renders three primary entry modes and their destinations", () => {
     const source = readFileSync("components/IntentNavigator.tsx", "utf8");
-    expect(source).toContain("Know what AI decisions your institution needs to make next.");
+    expect(source).toContain("Know which AI decisions matter for your institution.");
     expect(source).toContain("Build my roadmap");
     expect(source).toContain("Ask about my situation");
     expect(source).toContain("Explore a topic");
@@ -61,8 +61,12 @@ describe("MS-CC pilot shell", () => {
   it("uses evidence-honest landing-page positioning", () => {
     const source = readFileSync("components/IntentNavigator.tsx", "utf8");
     expect(source).toContain("Built for decisions, not another maturity score.");
-    expect(source).toContain("Practitioner validation of the model and decision sequencing is ongoing.");
+    expect(source).toContain("Practitioner validation of the decision model and sequencing is ongoing.");
     expect(source).toContain("researcher synthesis");
+    expect(source).toContain("supports institutional judgment rather than replacing it");
+    expect(source).toContain("defined decision rules—not open-ended AI generation");
+    expect(source).toContain("direct, corroborating, contextual, or researcher synthesis");
+    expect(source).toContain("Inspectable");
     expect(source).not.toMatch(/scientifically proven|validated recommendations|authoritative recommendations/i);
   });
 

@@ -6,7 +6,7 @@ export const landingStats = {
   sources: ontology.sources.length,
 };
 
-const exampleDecisionIds = ["GOV-001", "DAT-002", "PRO-002", "TEC-002", "TL-001"];
+const exampleDecisionIds = ["GOV-001", "DAT-002", "PRO-002", "TEC-002", "POL-008"];
 
 export const landingExampleDecisions = exampleDecisionIds.map((decisionId) => {
   const decision = ontology.decisions.find((candidate) => candidate.id === decisionId);

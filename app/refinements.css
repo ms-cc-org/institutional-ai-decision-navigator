@@ -60,6 +60,15 @@
   margin: 0;
 }
 
+.trust-calibration {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 13px;
+  margin: 20px 0 0;
+  max-width: 980px;
+  padding-top: 14px;
+}
+
 .credibility-strip {
   background: var(--white);
   border: 1px solid var(--line);
